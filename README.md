@@ -24,15 +24,25 @@ Fusion de plans/polygone au-delà des blocs
 Structures de données
 ===============================
 -PointCloud : pointeur point -> plan/polygone
+
 -Octree
+
 -Plan :
+
     vecteur normal + point OU equation (4 coordonnées) + incertitudes ?
+
     listes des points issus du RANSAC
+
 -Polygone
+
     plan d’origine
+
     listes des points inclus
+
     enveloppe convexe
+
     point moyen + rayon pour détection de polygones voisins
+
 -(Bonus) Arête
 
 
@@ -46,5 +56,8 @@ Idées
 Bibliographie
 ===============================
 data set : http://www.pointclouds.org/news/2013/01/07/point-cloud-data-sets/
+
 github : https://github.com/brandonpelfrey/SimpleOctree
+
 http://www.ipb.uni-bonn.de/fileadmin/publication/pdf/Yang2010Plane.pdf
+
