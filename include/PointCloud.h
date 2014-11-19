@@ -9,7 +9,7 @@ class PointCloud
 {
     public:
         PointCloud();
-        PointCloud(char* filename);
+        PointCloud(const std::string& filename);
         void addPoint(Point p) { points.push_back(p); }
         Point* pointAt(int i) { return &points.at(i); }
         int size() const { return points.size(); }
