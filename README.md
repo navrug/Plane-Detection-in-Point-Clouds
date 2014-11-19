@@ -61,3 +61,10 @@ github : https://github.com/brandonpelfrey/SimpleOctree
 
 http://www.ipb.uni-bonn.de/fileadmin/publication/pdf/Yang2010Plane.pdf
 
+Rapport
+===============================
+À rendre pour le 12/01
+Rendre le programme sans "build"
+Le rapport contient ce que l’on veut
+Rendu par mail
+
