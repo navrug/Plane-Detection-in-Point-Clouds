@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <iostream>
 #include "Point.h"
 
 
@@ -33,6 +34,21 @@
 				for(int i=0; i<8; ++i)
 					children[i] = NULL;
 			}
+
+        Octree(PointCloud& cloud) {
+            halfDimension = cloud.getHalfDimension();
+            data = NULL;
+            origin = cloud.getMiddle();//First point of the cloud or coordinate origin?
+            for(int i=0; i<8; ++i)
+				children[i] = NULL;
+            int count(0);
+            for(int i(0); i<cloud.size(); ++i) {
+                std::cout << count++ << std::endl;
+                Point* p = cloud.pointAt(i);
+                insert(p);
+            }
+        }
+
 
 		Octree(const Octree& copy)
 			: origin(copy.origin), halfDimension(copy.halfDimension), data(copy.data) {
@@ -109,6 +125,7 @@
 				children[octant]->insert(point);
 			}
 		}
+
 
 		// This is a really simple routine for querying the tree for points
 		// within a bounding box defined by min/max points (bmin, bmax)
