@@ -47,6 +47,9 @@ Plane ransac(const std::vector<Point>& points, double epsilon, int numStartPoint
             for (int i = 0 ; i < pts.size() ; ++i)
                 erreur += plan.distance(points[i]);
 
+            plan.setPoints(pts);
+            std::cout << plan << " : score = " << erreur << std::endl;
+
             if (score < 0 || erreur < score) {
                 result = plan;
                 result.setPoints(pts);
