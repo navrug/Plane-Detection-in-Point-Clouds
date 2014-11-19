@@ -16,8 +16,11 @@ int main()
     Plane plane = ransac(cloud.getPoints(), 1, 3, 10, 100, random);
     std::cout << "Plan : " << plane << std::endl;
 
-    Octree octree(cloud);
-    std::cout << "Octree loaded !" << std::endl;
+    //could.addPlane(plane, RGB(255, 0, 0));
+    cloud.toPly("detect.ply");
+
+    //Octree octree(cloud);
+    //std::cout << "Octree loaded !" << std::endl;
 
     return 0;
 }

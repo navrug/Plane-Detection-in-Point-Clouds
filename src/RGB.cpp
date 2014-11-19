@@ -14,8 +14,3 @@ RGB::RGB(unsigned char& red, unsigned char& green, unsigned char& blue)
     g = green;
     b = blue;
 }
-
-RGB::~RGB()
-{
-    //dtor
-}
