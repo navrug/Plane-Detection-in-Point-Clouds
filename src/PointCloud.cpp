@@ -6,12 +6,6 @@
 
 using namespace std;
 
-PointCloud::PointCloud()
-{
-    //ctor
-}
-
-
 PointCloud::PointCloud(const std::string& filename)
 {
     ifstream infile(filename.c_str());
@@ -32,9 +26,4 @@ PointCloud::PointCloud(const std::string& filename)
         addPoint(Point(x, y, z));
         //cout << x << " " << y << " " << z << " added." << endl;
     }
-}
-
-PointCloud::~PointCloud()
-{
-    //dtor
 }

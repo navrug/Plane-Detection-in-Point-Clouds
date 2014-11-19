@@ -1,11 +1,17 @@
-#include <iostream>
 #include "PointCloud.h"
+#include "Ransac.h"
 
-using namespace std;
+#include <iostream>
+#include <random>
 
 int main()
 {
     PointCloud cloud("Cloud.xyz");
-    cout << "Hello world!" << endl;
+    std::cout << "Cloud loaded !" << std::endl;
+
+    std::default_random_engine random;
+    Plane plane = ransac(cloud.points, 1, 3, 10, 100, random);
+    std::cout << "Plan : " << plane << std::endl;
+
     return 0;
 }

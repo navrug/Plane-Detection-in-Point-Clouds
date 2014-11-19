@@ -13,6 +13,7 @@ ADD_EXECUTABLE(
     include/Point.h
     include/PointCloud.h
     include/Polygon.h
+    include/Ransac.h
     include/Vec3.h
     src/Plane.cpp
     src/PointCloud.cpp

@@ -7,14 +7,11 @@
 
 class PointCloud
 {
-    public:
-        PointCloud();
-        PointCloud(const std::string& filename);
-        void addPoint(Point p) { points.push_back(p); }
-        virtual ~PointCloud();
-    protected:
-    private:
-        std::vector<Point> points;
+public:
+    PointCloud(const std::string& filename);
+    void addPoint(Point p) { points.push_back(p); }
+    
+    std::vector<Point> points;
 };
 
 #endif // POINTCLOUD_H
