@@ -30,7 +30,7 @@ PointCloud::PointCloud(const std::string& filename)
         double x, y, z;
         if (!(iss >> x >> y >> z)) { break; } // error
         addPoint(Point(x, y, z));
-        cout << x << " " << y << " " << z << " added." << endl;
+        //cout << x << " " << y << " " << z << " added." << endl;
     }
 }
 

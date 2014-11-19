@@ -1,7 +1,7 @@
 #ifndef POINTCLOUD_H
 #define POINTCLOUD_H
 #include <string>
-#include <list>
+#include <vector>
 #include "Point.h"
 
 
@@ -14,7 +14,7 @@ class PointCloud
         virtual ~PointCloud();
     protected:
     private:
-        std::list<Point> points;
+        std::vector<Point> points;
 };
 
 #endif // POINTCLOUD_H

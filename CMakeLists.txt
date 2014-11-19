@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 FIND_PACKAGE(OpenCV REQUIRED)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 PROJECT(plane_detection)
 
@@ -13,7 +14,9 @@ ADD_EXECUTABLE(
     include/PointCloud.h
     include/Polygon.h
     include/Vec3.h
+    src/Plane.cpp
     src/PointCloud.cpp
+    src/Ransac.cpp
     src/main.cpp
 )
 
