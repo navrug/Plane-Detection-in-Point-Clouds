@@ -33,7 +33,8 @@ PointCloud::PointCloud(const std::string& filename)
     {
         istringstream iss(line);
         double x, y, z;
-        if (!(iss >> x >> y >> z)) { break; } // error
+        unsigned char r, g, b;
+        if (!(iss >> x >> y >> z >> r >> g >> b)) { break; } // error
         xAvg += x;
         yAvg += y;
         zAvg += z;
@@ -43,7 +44,7 @@ PointCloud::PointCloud(const std::string& filename)
         xMin = min(xMin, x);
         yMin = min(yMin, y);
         zMin = min(zMin, z);
-        addPoint(Point(x, y, z));
+        addPoint(Point(x, y, z, r, g, b));
         count++;
 //        cout << x << " " << y << " " << z << " added." << endl;
     }
@@ -51,3 +52,26 @@ PointCloud::PointCloud(const std::string& filename)
     halfDimension = Vec3((xMax - xMin)/2, (yMax - yMin)/2, (zMax - zMin)/2);
     cout << "Created a PointCloud of " << count << " points." << endl;
 }
+
+/*void toPly(const Image<uchar>& I1, const Mat& D, int n, String filename)
+{
+    int h(I1.height()), w(I1.width());
+    vector<Point3f> vertices = vector<Point3f>();
+    vector<Vec3i> faces = vector<Vec3i>();
+    vector<Vec3b> color = vector<Vec3b>();
+    int bound = 80;
+    for(int i(n); i<h-n; ++i)
+        for (int j(n); j<w-n; ++j) {
+            if(D.at<char>(i, j)<-bound || D.at<char>(i, j)>bound) {
+                vertices.push_back(Point3f(j, i, 100000.0/(100.0-bound)));
+            } else {
+                vertices.push_back(Point3f(j, i, 100000.0/(100.0+D.at<char>(i, j))));
+            }
+            color.push_back(Vec3b(I1.at<uchar>(i, j),I1.at<uchar>(i, j),I1.at<uchar>(i, j)));
+            if(i<h-n-1 && j <w-n-1) {
+                faces.push_back(Vec3i((int)((i-n)*(w-2*n) + (j-n)), (int)((i-n+1)*(w-2*n) + (j-n)), (int)((i-n)*(w-2*n) + (j-n+1))));
+                faces.push_back(Vec3i((int)((i-n+1)*(w-2*n) + (j-n)), (int)((i-n)*(w-2*n) + (j-n+1)), (int)((i-n+1)*(w-2*n) + (j-n+1))));
+            }
+        }
+    savePly(filename+".ply", vertices, faces, color);
+}*/
