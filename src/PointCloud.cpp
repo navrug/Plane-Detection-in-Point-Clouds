@@ -12,9 +12,9 @@ PointCloud::PointCloud()
 }
 
 
-PointCloud::PointCloud(char* filename)
+PointCloud::PointCloud(const std::string& filename)
 {
-    ifstream infile(filename);
+    ifstream infile(filename.c_str());
     string line;
     getline(infile, line);
     getline(infile, line);

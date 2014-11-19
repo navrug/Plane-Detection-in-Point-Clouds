@@ -9,7 +9,7 @@ class PointCloud
 {
     public:
         PointCloud();
-        PointCloud(char* filename);
+        PointCloud(const std::string& filename);
         void addPoint(Point p) { points.push_back(p); }
         virtual ~PointCloud();
     protected:
