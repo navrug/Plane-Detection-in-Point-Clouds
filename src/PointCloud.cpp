@@ -72,7 +72,7 @@ bool PointCloud::toPly(const std::string& filename)
         << "end_header" << endl;
 
     for (int i = 0 ; i < points.size() ; ++i) {
-        const Point& p = points[i];
+        const Point& p = *points[i];
         out << p.x << " " << p.y << " " << p.z << " " << int(p.rgb.r) << " " << int(p.rgb.g) << " " << int(p.rgb.b) << " " << endl;
     }
 

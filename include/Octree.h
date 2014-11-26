@@ -16,7 +16,7 @@
 		// The tree has up to eight children and can additionally store
 		// a point, though in many applications only, the leaves will store data.
 		Octree *children[8]; //! Pointers to child octants
-		Point *data;   //! Data point to be stored at a node
+		SharedPoint data;   //! Data point to be stored at a node
 
 		/*
 				Children follow a predictable pattern to make accesses simple.
@@ -29,22 +29,22 @@
 
 		public:
 		Octree(const Vec3& origin, const Vec3& halfDimension)
-			: origin(origin), halfDimension(halfDimension), data(NULL) {
+			: origin(origin), halfDimension(halfDimension), data() {
 				// Initially, there are no children
 				for(int i=0; i<8; ++i)
-					children[i] = NULL;
+					children[i] = nullptr;
 			}
 
         Octree(PointCloud& cloud) {
             halfDimension = cloud.getHalfDimension();
-            data = NULL;
+            data.reset();
             origin = cloud.getMiddle();//First point of the cloud or coordinate origin?
             for(int i=0; i<8; ++i)
-				children[i] = NULL;
+				children[i] = nullptr;
             int count(0);
             for(int i(0); i<cloud.size(); ++i) {
                 std::cout << count++ << std::endl;
-                Point* p = cloud.pointAt(i);
+                SharedPoint p = cloud.pointAt(i);
                 insert(p);
             }
         }
@@ -62,11 +62,11 @@
 		}
 
 		// Determine which octant of the tree would contain 'point'
-		int getOctantContainingPoint(const Vec3& point) const {
+		int getOctantContainingPoint(SharedPoint point) const {
 			int oct = 0;
-			if(point.x >= origin.x) oct |= 4;
-			if(point.y >= origin.y) oct |= 2;
-			if(point.z >= origin.z) oct |= 1;
+			if(point->x >= origin.x) oct |= 4;
+			if(point->y >= origin.y) oct |= 2;
+			if(point->z >= origin.z) oct |= 1;
 			return oct;
 		}
 
@@ -74,21 +74,21 @@
 			// This is correct, but overkill. See below.
 			/*
 				 for(int i=0; i<8; ++i)
-				 if(children[i] != NULL)
+				 if(children[i] != nullptr)
 				 return false;
 				 return true;
 			 */
 
 			// We are a leaf iff we have no children. Since we either have none, or
 			// all eight, it is sufficient to just check the first.
-			return children[0] == NULL;
+			return children[0] == nullptr;
 		}
 
-		void insert(Point* point) {
+		void insert(SharedPoint point) {
 			// If this node doesn't have a data point yet assigned
 			// and it is a leaf, then we're done!
 			if(isLeafNode()) {
-				if(data==NULL) {
+				if(data.get() == nullptr) {
 					data = point;
 					return;
 				} else {
@@ -98,8 +98,8 @@
 					// this new data point
 
 					// Save this data point that was here for a later re-insert
-					Point *oldPoint = data;
-					data = NULL;
+					SharedPoint oldPoint = data;
+					data.reset();
 
 					// Split the current node and create new empty trees for each
 					// child octant.
@@ -115,13 +115,13 @@
 					// Re-insert the old point, and insert this new point
 					// (We wouldn't need to insert from the root, because we already
 					// know it's guaranteed to be in this section of the tree)
-					children[getOctantContainingPoint(*oldPoint)]->insert(oldPoint);
-					children[getOctantContainingPoint(*point)]->insert(point);
+					children[getOctantContainingPoint(oldPoint)]->insert(oldPoint);
+					children[getOctantContainingPoint(point)]->insert(point);
 				}
 			} else {
 				// We are at an interior node. Insert recursively into the
 				// appropriate child octant
-				int octant = getOctantContainingPoint(*point);
+				int octant = getOctantContainingPoint(point);
 				children[octant]->insert(point);
 			}
 		}
@@ -130,14 +130,14 @@
 		// This is a really simple routine for querying the tree for points
 		// within a bounding box defined by min/max points (bmin, bmax)
 		// All results are pushed into 'results'
-		void getPointsInsideBox(const Vec3& bmin, const Vec3& bmax, std::vector<Point*>& results) {
+		void getPointsInsideBox(const Vec3& bmin, const Vec3& bmax, std::vector<SharedPoint>& results) {
 			// If we're at a leaf node, just see if the current data point is inside
 			// the query bounding box
 			if(isLeafNode()) {
-				if(data!=NULL) {
-					const Vec3& p = *data;
-					if(p.x>bmax.x || p.y>bmax.y || p.z>bmax.z) return;
-					if(p.x<bmin.x || p.y<bmin.y || p.z<bmin.z) return;
+				if(data.get() != nullptr) {
+					SharedPoint p = data;
+					if(data->x > bmax.x || data->y > bmax.y || data->z > bmax.z) return;
+					if(data->x < bmin.x || data->y < bmin.y || data->z < bmin.z) return;
 					results.push_back(data);
 				}
 			} else {

@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Plane ransac(const std::vector<Point>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur)
+Plane ransac(const std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur)
 {
     Plane result(0,0,0,0);
     double score = -1;
@@ -26,7 +26,7 @@ Plane ransac(const std::vector<Point>& points, double epsilon, int numStartPoint
     for (int t = 0 ; t < steps ; ++t) {
         // Choisit les premiers points
         std::set<int> choisis;
-        std::vector<Point> pts;
+        std::vector<SharedPoint> pts;
         for (int i = 0 ; i < numStartPoints ; ++i) {
             int k = random();
             while (choisis.find(k) != choisis.end())
@@ -36,7 +36,7 @@ Plane ransac(const std::vector<Point>& points, double epsilon, int numStartPoint
             pts.push_back(points[k]);
         }
 
-        Plane plan(pts[0], pts[1], pts[2]);
+        Plane plan(*pts[0], *pts[1], *pts[2]);
 
         for (int i = 0 ; i < points.size() ; ++i)
             if (choisis.find(i) == choisis.end() && plan.distance(points[i]) <= epsilon)

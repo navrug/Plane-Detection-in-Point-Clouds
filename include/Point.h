@@ -3,6 +3,7 @@
 
 #include "Vec3.h"
 #include "RGB.h"
+#include <memory>
 
 class Point : public Vec3
 {
@@ -11,5 +12,7 @@ public:
 	Point(const Vec3& position) : Vec3(position) {}
     RGB rgb;
 };
+
+typedef std::shared_ptr<Point> SharedPoint;
 
 #endif

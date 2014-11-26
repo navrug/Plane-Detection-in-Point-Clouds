@@ -18,9 +18,16 @@ Plane::Plane(const Point& p1, const Point& p2, const Point& p3)
 }
 
 // Carre de la distance entre le point et le plan
-double Plane::distance(const Point& p)
+double Plane::distance(SharedPoint p)
 {
-    double diff = a*p.x + b*p.y + c*p.z + d;
+    double diff = a*p->x + b*p->y + c*p->z + d;
     double norm = a*a + b*b + c*c;
     return diff * diff / norm;
+}
+
+// Change la couleur des points du plan
+void Plane::setColor(const RGB& color)
+{
+    for (SharedPoint p : points)
+        p->rgb = color;
 }

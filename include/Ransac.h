@@ -5,7 +5,7 @@
 #include <vector>
 #include <random>
 
-Plane ransac(const std::vector<Point>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur);
+Plane ransac(const std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur);
 
 #endif
 

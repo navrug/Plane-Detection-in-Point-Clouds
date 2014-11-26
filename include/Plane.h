@@ -14,21 +14,24 @@ public:
     Plane(const Point& p1, const Point& p2, const Point& p3);
     
     // Carre de la distance entre le point et le plan
-    double distance(const Point& p);
+    double distance(SharedPoint p);
     
     // Si le plan est bien defini (vecteur normal non nul)
     bool isValid() {return a != 0 || b != 0 || c != 0;}
     
     // Moindres carres
-    void ajuste(const std::vector<Point>& pts);
+    void ajuste(const std::vector<SharedPoint>& pts);
     
     // Liste des points de ce plan
-    void setPoints(const std::vector<Point>& pts) {points = pts;}
+    void setPoints(const std::vector<SharedPoint>& pts) {points = pts;}
+
+    // Change la couleur des points du plan
+    void setColor(const RGB& color);
     
 private:
     //Coordinates corresponding to the plane equation ax+by+cz+d=0
     double a, b, c, d;
-    std::vector<Point> points;
+    std::vector<SharedPoint> points;
     
     friend std::ostream& operator<<(std::ostream& os, const Plane& p);
 };
