@@ -13,10 +13,10 @@ public:
     
     bool toPly(const std::string& filename);
     void addPoint(Point p) { points.push_back(std::make_shared<Point>(p)); }
-    SharedPoint pointAt(int i) { return points.at(i); }
+    SharedPoint pointAt(int i) const { return points.at(i); }
     int size() const { return points.size(); }
-    Vec3 getMiddle() { return middle; }
-    Vec3 getHalfDimension() { return halfDimension; }
+    Vec3 getMiddle() const { return middle; }
+    Vec3 getHalfDimension() const { return halfDimension; }
     const std::vector<SharedPoint>& getPoints() {return points;}
     
 private:

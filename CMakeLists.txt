@@ -16,6 +16,7 @@ ADD_EXECUTABLE(
     include/Ransac.h
     include/RGB.h
     include/Vec3.h
+    src/Octree.cpp
     src/Plane.cpp
     src/PointCloud.cpp
     src/Ransac.cpp

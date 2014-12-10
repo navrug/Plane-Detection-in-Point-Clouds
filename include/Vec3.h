@@ -4,38 +4,38 @@
 #include <cmath>
 
 struct Vec3;
-Vec3 operator*(float r, const Vec3& v);
+Vec3 operator*(double r, const Vec3& v);
 
 struct Vec3 {
 	union {
 		struct {
-			float x,y,z;
+			double x,y,z;
 		};
-		float D[3];
+		double D[3];
 	};
 
 	Vec3() { }
-	Vec3(float _x, float _y, float _z)
+	Vec3(double _x, double _y, double _z)
 		:x(_x), y(_y), z(_z)
 	{ }
 
-	float& operator[](unsigned int i) {
+	double& operator[](unsigned int i) {
 		return D[i];
 	}
 
-	const float& operator[](unsigned int i) const {
+	const double& operator[](unsigned int i) const {
 		return D[i];
 	}
 
-	float maxComponent() const {
-		float r = x;
+	double maxComponent() const {
+		double r = x;
 		if(y>r) r = y;
 		if(z>r) r = z;
 		return r;
 	}
 
-	float minComponent() const {
-		float r = x;
+	double minComponent() const {
+		double r = x;
 		if(y<r) r = y;
 		if(z<r) r = z;
 		return r;
@@ -57,12 +57,12 @@ struct Vec3 {
 		return Vec3(x/r.x, y/r.y, z/r.z);
 	}
 
-	Vec3 operator*(float r) const {
+	Vec3 operator*(double r) const {
 		return Vec3(x*r,y*r,z*r);
 	}
 
 
-	Vec3 operator/(float r) const {
+	Vec3 operator/(double r) const {
 		return Vec3(x/r, y/r, z/r);
 	}
 
@@ -80,21 +80,21 @@ struct Vec3 {
 		return *this;
 	}
 
-	Vec3& operator*=(float r) {
+	Vec3& operator*=(double r) {
 		x*=r; y*=r; z*=r;
 		return *this;
 	}
 
 	// Inner/dot product
-	float operator*(const Vec3& r) const {
+	double operator*(const Vec3& r) const {
 		return x*r.x + y*r.y + z*r.z;
 	}
 
-	float norm() const {
+	double norm() const {
 		return sqrtf(x*x+y*y+z*z);
 	}
 
-	float normSquared() const {
+	double normSquared() const {
 		return x*x + y*y + z*z;
 	}
 
@@ -112,7 +112,7 @@ struct Vec3 {
 	}
 };
 
-inline Vec3 operator*(float r, const Vec3& v) {
+inline Vec3 operator*(double r, const Vec3& v) {
 	return Vec3(v.x*r, v.y*r, v.z*r);
 }
 
