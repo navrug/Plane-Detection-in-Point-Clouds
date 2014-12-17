@@ -6,6 +6,8 @@
 
 class Octree {
 
+    static unsigned int maxdepth;
+
 public:
     Octree(const Vec3& origin, const Vec3& halfDimension);
     Octree(const PointCloud& cloud);
@@ -15,7 +17,7 @@ public:
 
     bool isLeafNode() const;
 
-    void insert(SharedPoint p);
+    void insert(SharedPoint p, unsigned int depth);
 
 
     // This is a really simple routine for querying the tree for points

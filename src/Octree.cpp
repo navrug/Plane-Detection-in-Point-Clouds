@@ -1,5 +1,8 @@
 #include "Octree.h"
 
+unsigned int Octree::maxdepth = 30;
+
+
 Octree::Octree(const Vec3& origin, const Vec3& halfDimension) :
     origin(origin), halfDimension(halfDimension), count(0)
 {
@@ -11,8 +14,8 @@ Octree::Octree(const PointCloud& cloud) :
     for (int i = 0 ; i < cloud.size() ; ++i)
     {
         SharedPoint p = cloud.pointAt(i);
-        std::cout << "point(" << i << ") : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
-        insert(p);
+        //std::cout << "point(" << i << ") : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
+        insert(p, 0);
         //std::cout << std::endl;
     }
 }
@@ -33,8 +36,14 @@ bool Octree::isLeafNode() const
     return children[0].get() == nullptr;
 }
 
-void Octree::insert(SharedPoint p)
+void Octree::insert(SharedPoint p, unsigned int depth)
 {
+    if (depth >= maxdepth)
+    {
+        std::cout << "Profondeur maximale atteinte. Point non ajouté : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
+        return;
+    }
+
     //std::cout << "insert in {(" << origin.x << ", " << origin.y << ", " << origin.z << "), (" << halfDimension.x << ", " << halfDimension.y << ", " << halfDimension.z << ")}" << std::endl;
 
     // If this node doesn't have a data point yet assigned
@@ -46,7 +55,7 @@ void Octree::insert(SharedPoint p)
 
         //std::cout << ">>node : findOctant(p) : " << findOctant(p) << std::endl;
 
-        children[findOctant(p)]->insert(p);
+        children[findOctant(p)]->insert(p, depth + 1);
         ++count;
     }
     else
@@ -63,10 +72,12 @@ void Octree::insert(SharedPoint p)
             // and then insert the old data that was here, along with
             // this new data point
 
+            /*
             // Do nothing if we add the same point.
             // Otherwise we get infinite recursion !
             if (point->equals(p))
                 return;
+                //*/
 
             // Save this data point that was here for a later re-insert
             SharedPoint oldPoint = point;
@@ -88,11 +99,14 @@ void Octree::insert(SharedPoint p)
             // (We wouldn't need to insert from the root, because we already
             // know it's guaranteed to be in this section of the tree)
 
+            //std::cout << "+>oldPoint : [" << oldPoint->x << ", " << oldPoint->y << ", " << oldPoint->z << "]" << std::endl;
+            //std::cout << "+>p : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
+
             //std::cout << "+>leaf findOctant(oldPoint) : " << findOctant(oldPoint) << std::endl;
             //std::cout << "+>leaf findOctant(p) : " << findOctant(p) << std::endl;
 
-            children[findOctant(oldPoint)]->insert(oldPoint);
-            children[findOctant(p)]->insert(p);
+            children[findOctant(oldPoint)]->insert(oldPoint, depth + 1);
+            children[findOctant(p)]->insert(p, depth + 1);
             ++count;
         }
     }
