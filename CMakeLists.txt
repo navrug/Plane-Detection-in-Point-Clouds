@@ -8,6 +8,7 @@ PROJECT(plane_detection)
 INCLUDE_DIRECTORIES(include)
 ADD_EXECUTABLE(
     plane_detection
+    include/Matrix.h
     include/Octree.h
     include/Plane.h
     include/Point.h

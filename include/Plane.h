@@ -12,6 +12,8 @@ public:
     Plane(double a_, double b_, double c_, double d_) : a(a_), b(b_), c(c_), d(d_) {}
     // Plan passant par trois points
     Plane(const Point& p1, const Point& p2, const Point& p3);
+    // Plan passant par n points par minimisation des moindres carres
+    Plane(const std::vector<SharedPoint>& pts);
     
     // Carre de la distance entre le point et le plan
     double distance(SharedPoint p);

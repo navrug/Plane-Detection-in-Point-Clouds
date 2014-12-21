@@ -36,7 +36,8 @@ Plane ransac(const std::vector<SharedPoint>& points, double epsilon, int numStar
             pts.push_back(points[k]);
         }
 
-        Plane plan(*pts[0], *pts[1], *pts[2]);
+        //Plane plan(*pts[0], *pts[1], *pts[2]);
+        Plane plan(pts);
 
         for (int i = 0 ; i < points.size() ; ++i)
             if (choisis.find(i) == choisis.end() && plan.distance(points[i]) <= epsilon)

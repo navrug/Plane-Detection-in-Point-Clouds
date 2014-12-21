@@ -1,5 +1,7 @@
 #include "Plane.h"
 
+#include "Matrix.h"
+
 std::ostream& operator<<(std::ostream& os, const Plane& p)
 {
     return os << "{" << p.a << "x + " << p.b << "y + " << p.c << "z + " << p.d << " : " << p.points.size() << " points}";
@@ -15,6 +17,43 @@ Plane::Plane(const Point& p1, const Point& p2, const Point& p3)
     b = normal.y;
     c = normal.z;
     d = -diff;
+}
+
+// Plan passant par n points par minimisation des moindres carres
+Plane::Plane(const std::vector<SharedPoint>& pts)
+{
+    std::array<std::array<double, 4>, 3> m;
+
+    for (unsigned int i = 0 ; i < 3 ; ++i)
+        for (unsigned int j = 0 ; j < 4 ; ++j)
+            m[i][j] = 0;
+
+    for (unsigned int n = 0 ; n < pts.size() ; ++n)
+    {
+        const Point& p = *pts[n];
+
+        m[0][0] += p.x * p.x;
+        m[0][1] += p.x * p.y;
+        m[0][2] += p.x * p.z;
+        m[0][3] += p.x;
+
+        m[1][0] += p.y * p.x;
+        m[1][1] += p.y * p.y;
+        m[1][2] += p.y * p.z;
+        m[1][3] += p.y;
+
+        m[2][0] += p.z * p.x;
+        m[2][1] += p.z * p.y;
+        m[2][2] += p.z * p.z;
+        m[2][3] += p.z;
+    }
+
+    // L'equation du plan est un vecteur du noyau de m
+    std::array<double, 4> eq = Matrix<3, 4>::getKernel(m);
+    a = eq[0];
+    b = eq[1];
+    c = eq[2];
+    d = eq[3];
 }
 
 // Carre de la distance entre le point et le plan
