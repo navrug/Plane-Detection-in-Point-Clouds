@@ -1,5 +1,7 @@
 #include "Octree.h"
 
+#include "Ransac.h"
+
 unsigned int Octree::maxdepth = 30;
 
 
@@ -17,6 +19,52 @@ Octree::Octree(const PointCloud& cloud) :
         //std::cout << "point(" << i << ") : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
         insert(p, 0);
         //std::cout << std::endl;
+    }
+}
+
+
+void Octree::getPoints(std::vector<std::shared_ptr<Point> >& pts) const
+{
+    if (isLeafNode())
+    {
+        if (point.get() != nullptr)
+            pts.push_back(point);
+    }
+    else
+        for (auto&& child : children)
+            child->getPoints(pts);
+}
+
+void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur) const
+{
+    // Recursion
+    if (count > depthThreshold)
+    {
+        //std::cout << "ransac with " << count << " points => recursion" << std::endl;
+
+        for (auto&& child : children)
+            if (child.get() != nullptr)
+                child->ransac(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur);
+    }
+    // Do ransac
+    else
+    {
+        //std::cout << "ransac with " << count << " points" << std::endl;
+
+        std::vector<std::shared_ptr<Point> > pts;
+        this->getPoints(pts);
+
+        Plane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur);
+
+        std::uniform_int_distribution<int> distribution(0, 255);
+        auto random = std::bind(distribution, generateur);
+        int r = random();
+        int g = random();
+        int b = random();
+        plane.setColor(RGB(r, g, b));
+
+        //std::cout << "Plan : " << plane << std::endl;
+        //std::cout << "plane colored" << std::endl;
     }
 }
 
