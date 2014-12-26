@@ -77,5 +77,6 @@ bool PointCloud::toPly(const std::string& filename)
     }
 
     out.close();
+    cout << "Ply " << filename << " exported." << endl;
     return true;
 }

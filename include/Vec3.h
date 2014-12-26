@@ -85,6 +85,11 @@ struct Vec3 {
 		return *this;
 	}
 
+	Vec3& operator/=(double r) {
+		x/=r; y/=r; z/=r;
+		return *this;
+	}
+
 	// Inner/dot product
 	double operator*(const Vec3& r) const {
 		return x*r.x + y*r.y + z*r.z;
@@ -96,6 +101,10 @@ struct Vec3 {
 
 	double normSquared() const {
 		return x*x + y*y + z*z;
+	}
+
+	double distance(const Vec3& r) const {
+		return sqrtf((x-r.x)*(x-r.x)+(y-r.y)*(y-r.y)+(z-r.z)*(z-r.z));
 	}
 
 	// Cross product

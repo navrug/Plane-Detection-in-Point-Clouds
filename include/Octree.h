@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include "PointCloud.h"
+#include "PlaneSet.h"
 
 class Octree {
 
@@ -19,10 +20,10 @@ public:
     bool isLeafNode() const;
 
     void insert(SharedPoint p, unsigned int depth);
-    
+
     void getPoints(std::vector<std::shared_ptr<Point> >& pts) const;
-    
-    void ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur) const;
+
+    void ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes) const;
 
 
     // This is a really simple routine for querying the tree for points

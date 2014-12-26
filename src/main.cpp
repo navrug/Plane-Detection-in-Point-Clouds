@@ -6,6 +6,7 @@
 #include <random>
 
 #include "Matrix.h"
+#include "PlaneSet.h"
 
 template<size_t N>
 void printArray(const std::array<double, N>& a)
@@ -67,9 +68,12 @@ int main()
     std::cout << "Plan : " << plane << std::endl;
     plane.setColor(RGB(255, 0, 0));
     //*/
-    octree.ransac(100, 0.01, 10, 30, 10, random);
+    PlaneSet planes;
+    octree.ransac(1000, 0.01, 10, 30, 10, random, planes);
 
-    cloud.toPly("detect.ply");
+    planes.makeMerges();
+
+    cloud.toPly("detect2.ply");
 
     return 0;
 }

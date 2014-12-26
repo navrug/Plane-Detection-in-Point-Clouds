@@ -1,6 +1,7 @@
 #include "Octree.h"
 
 #include "Ransac.h"
+#include "PlaneSet.h"
 
 unsigned int Octree::maxdepth = 30;
 
@@ -35,7 +36,7 @@ void Octree::getPoints(std::vector<std::shared_ptr<Point> >& pts) const
             child->getPoints(pts);
 }
 
-void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur) const
+void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes) const
 {
     // Recursion
     if (count > depthThreshold)
@@ -44,7 +45,7 @@ void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int 
 
         for (auto&& child : children)
             if (child.get() != nullptr)
-                child->ransac(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur);
+                child->ransac(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, planes);
     }
     // Do ransac
     else
@@ -55,6 +56,8 @@ void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int 
         this->getPoints(pts);
 
         Plane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur);
+        planes.addPlane(&plane);
+
 
         std::uniform_int_distribution<int> distribution(0, 255);
         auto random = std::bind(distribution, generateur);

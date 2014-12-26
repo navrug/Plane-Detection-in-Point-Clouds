@@ -47,6 +47,8 @@ Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numSt
         //Plane plan(*pts[0], *pts[1], *pts[2]);
         Plane plan(pts);
 
+        //! Why the same vector pts ??
+
         for (int i = numStartPoints ; i < points.size() ; ++i)
             if (plan.distance(points[i]) <= epsilon)
                 pts.push_back(points[i]);
@@ -61,7 +63,7 @@ Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numSt
 
             if (score < 0 || erreur < score) {
                 result = plan;
-                result.setPoints(pts);
+                result.setPoints(pts); //! Doublon avec le plan.setPoints(pts);
                 score = erreur;
             }
         }

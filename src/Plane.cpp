@@ -1,6 +1,8 @@
 #include "Plane.h"
 
 #include "Matrix.h"
+#include "Vec3.h"
+#include <math.h>
 
 std::ostream& operator<<(std::ostream& os, const Plane& p)
 {
@@ -64,9 +66,47 @@ double Plane::distance(SharedPoint p)
     return diff * diff / norm;
 }
 
+// Lie un plan à ses points, calcule au passage le barycentre et le rayon du nuage de points.
+void Plane::setPoints(const std::vector<SharedPoint>& pts) {
+    points = pts;
+    for (SharedPoint point : points) {
+        center += static_cast<Vec3>(*point); //! Comment faire un dynamic cast sur un sharedptr ?
+    }
+    center /= points.size();
+    radius = 0;
+    double d;
+    for (SharedPoint point : points) {
+        d = center.distance(static_cast<Vec3>(*point));
+        radius = d > radius ? d : radius;
+    }
+}
+
 // Change la couleur des points du plan
 void Plane::setColor(const RGB& color)
 {
     for (SharedPoint p : points)
         p->rgb = color;
 }
+
+
+// Décide si deux plans peuvent être fusionnés
+// dTheta est donné en radians.
+bool Plane::mergeableWith(const Plane& p, double dTheta) const {
+    //Les spheres circonscrites s’intersectent-elles:
+    if (center.distance(p.center) > radius + p.radius)
+        return false;
+    //Calcul de l’écart angulaire
+    double cos = (a*p.a + b*p.b + c*p.c) / sqrt((a*a + b*b + c*c)*(p.a*p.a + p.b*p.b + p.c*p.c));
+    if ((1-cos)*(1-cos) > dTheta) // We use the approximation cos x = 1 - x*x
+        return false;
+    //Ajout d’un test point par point ?
+
+    return true;
+}
+
+// Inclut le plan p dans le plan objet, le plan p est vidé.
+void Plane::merge(Plane& p) {
+
+}
+
+
