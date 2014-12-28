@@ -4,7 +4,7 @@
 #include "Point.h"
 #include <vector>
 #include <iostream>
-
+#include "RGB.h"
 
 class Plane
 {
@@ -28,7 +28,7 @@ public:
     void setPoints(const std::vector<SharedPoint>& pts);
 
     // Change la couleur des points du plan
-    void setColor(const RGB& color);
+    void setColor(RGB* color);
 
     // Décide si deux plans peuvent être fusionnés
     // dTheta est donné en radians.
@@ -44,6 +44,7 @@ private:
     //Attributes for plane merging
     Vec3 center; // Currently the barycenter, but it would be better to have the circumcenter if we could find an efficient computation method
     double radius;
+    RGB* rgb;
 
     friend std::ostream& operator<<(std::ostream& os, const Plane& p);
 };

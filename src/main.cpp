@@ -71,9 +71,9 @@ int main()
     PlaneSet planes;
     octree.ransac(1000, 0.01, 10, 30, 10, random, planes);
 
-    planes.makeMerges();
+    planes.makeMerges(0.0001);
 
-    cloud.toPly("detect2.ply");
+    cloud.toPly("detect3.ply");
 
     return 0;
 }

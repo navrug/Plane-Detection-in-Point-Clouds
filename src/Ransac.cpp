@@ -1,11 +1,12 @@
 #include "Ransac.h"
+#include "PlaneSet.h"
 
 #include <set>
 #include <functional>
 
 #include <iostream>
 
-Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur)
+Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes)
 {
     Plane result(0,0,0,0);
     double score = -1;
@@ -68,6 +69,6 @@ Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numSt
             }
         }
     }
-
+    planes.addPlane(result);
     return result;
 }

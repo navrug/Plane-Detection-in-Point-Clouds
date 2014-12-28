@@ -8,11 +8,10 @@
 class Point : public Vec3
 {
 public:
-	Point(double x, double y, double z, unsigned char r, unsigned char g, unsigned char b) : Vec3(x, y, z), rgb(r,g,b) {}
+	Point(double x, double y, double z, RGB* rgb) : Vec3(x, y, z) { this->rgb = rgb;}
 	Point(const Vec3& position) : Vec3(position) {}
 	bool equals(const std::shared_ptr<Point>& p) {return x == p->x && y == p->y && z == p->z;}
-	
-    RGB rgb;
+    RGB* rgb;
 };
 
 typedef std::shared_ptr<Point> SharedPoint;
