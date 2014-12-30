@@ -6,7 +6,7 @@
 
 std::ostream& operator<<(std::ostream& os, const Plane& p)
 {
-    return os << "{" << p.a << "x + " << p.b << "y + " << p.c << "z + " << p.d << " : " << p.points.size() << " points}";
+    return os << "{" << p.a << "x + " << p.b << "y + " << p.c << "z + " << p.d << " : " << p.points.size() << " points, color " << p.rgb->r << " " << p.rgb->g << " " << p.rgb->b << "}";
 }
 
 // Plan passant par trois points
@@ -93,13 +93,16 @@ void Plane::setColor(RGB* color)
 
 // Décide si deux plans peuvent être fusionnés
 // dTheta est donné en radians.
-bool Plane::mergeableWith(const Plane& p, double dTheta) const {
-    //Les spheres circonscrites s’intersectent-elles:
+bool Plane::mergeableWith(const Plane& p, double dTheta, double dL) const {
+    // Les spheres circonscrites s’intersectent-elles:
     if (center.distance(p.center) > radius + p.radius)
         return false;
-    //Calcul de l’écart angulaire
+    // Calcul de l’écart angulaire
     double cos = (a*p.a + b*p.b + c*p.c) / sqrt((a*a + b*b + c*c)*(p.a*p.a + p.b*p.b + p.c*p.c));
-    if ((1-cos)*(1-cos) > dTheta) // We use the approximation cos x = 1 - x*x
+    if (std::sqrt(1-cos)> dTheta) // We use the approximation cos x = 1 - x*x
+        return false;
+    // Comparaison des composantes affines
+    if (std::abs(d - p.d) > dL)
         return false;
     //Ajout d’un test point par point ?
 
@@ -126,6 +129,8 @@ void Plane::merge(Plane& p) {
     for (unsigned int n = 0 ; n < points.size() ; ++n)
     {
         Point& p = *points[n];
+        if (rgb->r == 0  && rgb->g == 0 && rgb->b == 0)
+            std::cout << "BLACK" << std::endl;
         p.rgb = rgb;
 
         m[0][0] += p.x * p.x;

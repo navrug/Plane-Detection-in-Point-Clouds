@@ -63,15 +63,16 @@ int main()
     std::cout << "Octree loaded !" << std::endl;
 
     std::default_random_engine random;
+    random.seed(333);
     /*
     Plane plane = ransac(cloud.getPoints(), 1, 3, 10, 100, random);
     std::cout << "Plan : " << plane << std::endl;
     plane.setColor(RGB(255, 0, 0));
     //*/
     PlaneSet planes;
-    octree.ransac(1000, 0.01, 10, 30, 10, random, planes);
+    octree.ransac(5000, 1, 10, 30, 10, random, planes);
 
-    planes.makeMerges(0.0001);
+    planes.makeMerges(0.05, 10);
 
     cloud.toPly("detect3.ply");
 

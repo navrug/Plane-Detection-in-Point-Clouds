@@ -32,7 +32,7 @@ public:
 
     // Décide si deux plans peuvent être fusionnés
     // dTheta est donné en radians.
-    bool mergeableWith(const Plane& p, double dTheta) const;
+    bool mergeableWith(const Plane& p, double dTheta, double dL) const;
 
     // Inclut le plan p dans le plan objet, le plan p est vidé.
     void merge(Plane& p);
