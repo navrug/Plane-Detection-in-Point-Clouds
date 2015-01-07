@@ -36,6 +36,9 @@ public:
     // Inclut le plan p dans le plan objet, le plan p est vide.
     void merge(Plane& p, UnionFind<SharedPoint, RGB>& colors);
 
+    // Donne la distance entre deux point selon la normale au plan p
+    static double distanceAlong(Vec3 u, Vec3 v, const Plane& p);
+
     // Valeur absolue du cosinus entre les vecteurs normaux.
     static double getCos(const Plane& p, const Plane& q);
 

@@ -126,14 +126,20 @@ bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
     if (cos < dCos)
         return false;
 
-    // Test écart angulaire avec le nouveau plan
-    Plane tempPlane;
-    for (unsigned int i = 0 ; i < 3 ; ++i)
-        for (unsigned int j = 0 ; j < 4 ; ++j)
-            tempPlane.m[i][j] = m[i][j] + p.m[i][j];
-    tempPlane.computeEquation();
-    if (getCos(tempPlane, *this)<dCos || getCos(tempPlane, p)<dCos)
+    // Test éloignement des barycentres selon la normale
+    if (distanceAlong(center, p.center, *this) > dL || distanceAlong(center, p.center, p) > dL)
         return false;
+
+    // Test écart angulaire avec le nouveau plan
+//    Plane tempPlane;
+//    for (unsigned int i = 0 ; i < 3 ; ++i)
+//        for (unsigned int j = 0 ; j < 4 ; ++j)
+//            tempPlane.m[i][j] = m[i][j] + p.m[i][j];
+//    tempPlane.computeEquation();
+//    if (getCos(tempPlane, *this)<dCos || getCos(tempPlane, p)<dCos)
+//        return false;
+
+
 
     // Comparaison des composantes affines
     //if (std::abs(d - p.d) > dL)
@@ -165,6 +171,9 @@ void Plane::merge(Plane& p, UnionFind<SharedPoint, RGB>& colors) {
     p = Plane();
 }
 
+double Plane::distanceAlong(Vec3 u, Vec3 v, const Plane& p) {
+    return std::abs(((v.x-u.x)*p.a + (v.y-u.y)*p.b + (v.z-u.z)*p.c)/sqrt(p.a*p.a + p.b*p.b + p.c*p.c));
+}
 
 double Plane::getCos(const Plane& p, const Plane& q) {
     return std::fabs((q.a*p.a + q.b*p.b + q.c*p.c) / sqrt((q.a*q.a + q.b*q.b + q.c*q.c)*(p.a*p.a + p.b*p.b + p.c*p.c)));

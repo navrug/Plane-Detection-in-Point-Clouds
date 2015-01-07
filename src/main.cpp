@@ -41,7 +41,7 @@ int main()
     plane.setColor(RGB(255, 0, 0));
     //*/
     std::vector<SharedPlane> planes;
-    octree.detectPlanes(100, 0.05, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 10);
+    octree.detectPlanes(100, 0.05, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 1);
 
     cloud.toPly("detect4.ply");
 
