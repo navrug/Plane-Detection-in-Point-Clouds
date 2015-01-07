@@ -7,6 +7,12 @@
 
 using namespace std;
 
+void PointCloud::addPoint(SharedPoint p, RGB color)
+{
+    points.push_back(p);
+    colors.append(p, color);
+}
+
 PointCloud::PointCloud(const std::string& filename)
 {
     ifstream infile(filename.c_str());
@@ -44,7 +50,7 @@ PointCloud::PointCloud(const std::string& filename)
         xMin = min(xMin, x);
         yMin = min(yMin, y);
         zMin = min(zMin, z);
-        addPoint(Point(x, y, z, new RGB(r, g, b)));
+        addPoint(std::make_shared<Point>(x, y, z), RGB(r, g, b));
         count++;
     }
     middle = Vec3(xAvg/count, yAvg/count, zAvg/count);
@@ -71,9 +77,9 @@ bool PointCloud::toPly(const std::string& filename)
         << "property uchar blue" << endl
         << "end_header" << endl;
 
-    for (int i = 0 ; i < points.size() ; ++i) {
-        const Point& p = *points[i];
-        out << p.x << " " << p.y << " " << p.z << " " << int(p.rgb->r) << " " << int(p.rgb->g) << " " << int(p.rgb->b) << " " << endl;
+    for (SharedPoint p : points) {
+        RGB rgb = colors.at(p);
+        out << p->x << " " << p->y << " " << p->z << " " << int(rgb.r) << " " << int(rgb.g) << " " << int(rgb.b) << " " << endl;
     }
 
     out.close();

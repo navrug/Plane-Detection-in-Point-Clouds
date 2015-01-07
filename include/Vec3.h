@@ -107,6 +107,10 @@ struct Vec3 {
 		return sqrtf((x-r.x)*(x-r.x)+(y-r.y)*(y-r.y)+(z-r.z)*(z-r.z));
 	}
 
+	double squareDistance(const Vec3& r) const {
+		return (x-r.x)*(x-r.x)+(y-r.y)*(y-r.y)+(z-r.z)*(z-r.z);
+	}
+
 	// Cross product
 	Vec3 operator^(const Vec3& r) const {
 		return Vec3(

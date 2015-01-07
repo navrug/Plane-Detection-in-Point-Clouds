@@ -23,7 +23,7 @@ public:
 
     void getPoints(std::vector<std::shared_ptr<Point> >& pts) const;
 
-    void ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes) const;
+    void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL) const;
 
 
     // This is a really simple routine for querying the tree for points

@@ -69,12 +69,10 @@ int main()
     std::cout << "Plan : " << plane << std::endl;
     plane.setColor(RGB(255, 0, 0));
     //*/
-    PlaneSet planes;
-    octree.ransac(5000, 1, 10, 30, 10, random, planes);
+    std::vector<SharedPlane> planes;
+    octree.detectPlanes(100, 0.05, 10, 30, 10, random, planes, cloud.getColors(), 0.95, 10);
 
-    planes.makeMerges(0.05, 10);
-
-    cloud.toPly("detect3.ply");
+    cloud.toPly("detect4.ply");
 
     return 0;
 }

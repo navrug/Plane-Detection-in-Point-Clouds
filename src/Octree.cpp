@@ -17,9 +17,7 @@ Octree::Octree(const PointCloud& cloud) :
     for (int i = 0 ; i < cloud.size() ; ++i)
     {
         SharedPoint p = cloud.pointAt(i);
-        //std::cout << "point(" << i << ") : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
         insert(p, 0);
-        //std::cout << std::endl;
     }
 }
 
@@ -36,37 +34,50 @@ void Octree::getPoints(std::vector<std::shared_ptr<Point> >& pts) const
             child->getPoints(pts);
 }
 
-void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes) const
+void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL) const
 {
     // Recursion
     if (count > depthThreshold)
     {
-        //std::cout << "ransac with " << count << " points => recursion" << std::endl;
-
+        std::vector<SharedPlane> set;
         for (auto&& child : children)
             if (child.get() != nullptr)
-                child->ransac(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, planes);
+                child->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, set, colors, dCos, dL);
+
+        for (unsigned int i = 0 ; i < set.size() ; ++i)
+        {
+            for (unsigned int j = 0 ; j < i ; ++j)
+            {
+                if (set[i] && set[j] && set[i]->mergeableWith(*set[j], dCos, dL))
+                {
+                    set[i]->merge(*set[j], colors);
+                    set[j].reset();
+                }
+            }
+        }
+
+        for (unsigned int i = 0 ; i < set.size() ; ++i)
+            if (set[i])
+                planes.push_back(set[i]);
     }
     // Do ransac
     else
     {
-        //std::cout << "ransac with " << count << " points" << std::endl;
-
         std::vector<std::shared_ptr<Point> > pts;
         this->getPoints(pts);
 
-        Plane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur, planes);
+        SharedPlane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur, colors);
+        if (!plane)
+            return;
 
+        planes.push_back(plane);
 
         std::uniform_int_distribution<int> distribution(0, 255);
         auto random = std::bind(distribution, generateur);
         int r = random();
         int g = random();
         int b = random();
-        plane.setColor(new RGB(r, g, b));
-
-        //std::cout << "Plan : " << plane << std::endl;
-        //std::cout << "plane colored" << std::endl;
+        plane->setColor(RGB(r, g, b), colors);
     }
 }
 
