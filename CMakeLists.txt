@@ -11,14 +11,16 @@ ADD_EXECUTABLE(
     include/Matrix.h
     include/Octree.h
     include/Plane.h
+    include/PlaneSet.h
     include/Point.h
     include/PointCloud.h
-    include/Polygon.h
     include/Ransac.h
     include/RGB.h
+    include/UnionFind.h
     include/Vec3.h
     src/Octree.cpp
     src/Plane.cpp
+    src/PlaneSet.cpp
     src/PointCloud.cpp
     src/Ransac.cpp
     src/RGB.cpp

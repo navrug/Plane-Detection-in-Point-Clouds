@@ -6,9 +6,9 @@
 
 #include <iostream>
 
-Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes)
+SharedPlane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, UnionFind<SharedPoint, RGB>& colors)
 {
-    Plane result(0,0,0,0);
+    SharedPlane result;
     double score = -1;
 
     if (points.size() < numStartPoints) {
@@ -20,55 +20,63 @@ Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numSt
         return result;
     }
 
+    // On calcule la l'écart-type de la distance entre les points
+    Vec3 center;
+    for (auto&& point : points)
+        center += *point;
+    center /= points.size();
+
+    double stddev = 0;
+    for (auto&& point : points)
+        stddev += center.squareDistance(*point);
+    stddev /= points.size();
+    stddev = std::sqrt(stddev);
+
+    // Le seuil de distance est proportionnel à cet écart-type.
+    epsilon *= stddev;
+
+
+    std::vector<SharedPoint> result_pts;
+
     for (int t = 0 ; t < steps ; ++t) {
         // Choisit les premiers points
-        //std::set<int> choisis;
         std::vector<SharedPoint> pts;
         for (int i = 0 ; i < numStartPoints ; ++i) {
             // Generateur aleatoire
             std::uniform_int_distribution<int> distribution(i, points.size() - 1);
             int k = distribution(generateur);
-            /*
-            while (choisis.find(k) != choisis.end())
-            {
-                //std::cout << "found(k) = " << k << std::endl;
-                int k = random();
-            }
-
-            choisis.insert(k);
-            std::cout << "insert(k) = " << k << " => size = " << choisis.size() << std::endl;
-            //*/
 
             std::swap(points[i], points[k]);
             pts.push_back(points[i]);
         }
 
-        //std::cout << "t = " << t << std::endl;
+        SharedPlane shared_plan = std::make_shared<Plane>(pts);
+        Plane& plan = *shared_plan;
 
-        //Plane plan(*pts[0], *pts[1], *pts[2]);
-        Plane plan(pts);
-
-        //! Why the same vector pts ??
-
-        for (int i = numStartPoints ; i < points.size() ; ++i)
-            if (plan.distance(points[i]) <= epsilon)
-                pts.push_back(points[i]);
+        pts.clear();
+        for (auto&& p : points)
+            if (plan.distance(p) <= epsilon)
+                pts.push_back(p);
 
         if (pts.size() > numPoints) {
-            double erreur = 0;
-            for (int i = 0 ; i < pts.size() ; ++i)
-                erreur += plan.distance(points[i]);
-
             plan.setPoints(pts);
+
+            double erreur = 0;
+            for (auto&& p : pts)
+                erreur += plan.distance(p);
+
             //std::cout << plan << " : score = " << erreur << std::endl;
 
             if (score < 0 || erreur < score) {
-                result = plan;
-                result.setPoints(pts); //! Doublon avec le plan.setPoints(pts);
+                result = shared_plan;
+                result_pts = pts;
                 score = erreur;
             }
         }
     }
-    planes.addPlane(result);
+
+    for (auto&& p : result_pts)
+        colors.merge(p, result_pts[0]);
+
     return result;
 }

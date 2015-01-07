@@ -9,7 +9,7 @@
 class Ransac
 {
 public:
-    static Plane ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes);
+    static SharedPlane ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, UnionFind<SharedPoint, RGB>& colors);
 };
 
 #endif

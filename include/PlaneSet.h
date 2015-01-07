@@ -10,7 +10,7 @@ class PlaneSet
         PlaneSet();
         virtual ~PlaneSet();
         void addPlane(Plane& plane) { planes.push_back(plane); }
-        void makeMerges(double dTheta, double dL);
+        void makeMerges(double dCos, double dL, UnionFind<SharedPoint, RGB>& colors);
     protected:
     private:
         std::vector<Plane> planes;
