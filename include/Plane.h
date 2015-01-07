@@ -36,6 +36,10 @@ public:
     // Inclut le plan p dans le plan objet, le plan p est vide.
     void merge(Plane& p, UnionFind<SharedPoint, RGB>& colors);
 
+    static double getCos(const Plane& p, const Plane& q) {
+        return (q.a*p.a + q.b*p.b + q.c*p.c) / sqrt((q.a*q.a + q.b*q.b + q.c*q.c)*(p.a*p.a + p.b*p.b + p.c*p.c));
+    }
+
 private:
     // Initialise la matrice M
     void init();

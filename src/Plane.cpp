@@ -110,6 +110,7 @@ void Plane::setColor(RGB color, UnionFind<SharedPoint, RGB>& colors)
 }
 
 
+
 // Décide si deux plans peuvent être fusionnés
 // dTheta est donné en radians.
 bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
@@ -121,9 +122,19 @@ bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
     if (center.distance(p.center) > (radius + p.radius))
         return false;
     // Calcul de l'écart angulaire
-    double cos = (a*p.a + b*p.b + c*p.c) / sqrt((a*a + b*b + c*c)*(p.a*p.a + p.b*p.b + p.c*p.c));
+    double cos = getCos(*this, p);
     if (cos < dCos)
         return false;
+
+    // Test écart angulaire avec le nouveau plan
+    Plane tempPlane;
+    for (unsigned int i = 0 ; i < 3 ; ++i)
+        for (unsigned int j = 0 ; j < 4 ; ++j)
+            tempPlane.m[i][j] = m[i][j] + p.m[i][j];
+    tempPlane.computeEquation();
+    if (getCos(tempPlane, *this)<dCos || getCos(tempPlane, p)<dCos)
+        return false;
+
     // Comparaison des composantes affines
     //if (std::abs(d - p.d) > dL)
       //  return false;
@@ -131,6 +142,7 @@ bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
 
     return true;
 }
+
 
 // Inclut le plan p dans le plan objet, le plan p est vidé.
 void Plane::merge(Plane& p, UnionFind<SharedPoint, RGB>& colors) {
@@ -142,11 +154,11 @@ void Plane::merge(Plane& p, UnionFind<SharedPoint, RGB>& colors) {
     radius = center.distance(p.center) + std::max(radius, p.radius);
     center = (center * count + p.center * p.count) / (count + p.count);
     colors.merge(point, p.point);
+    count += p.count;
 
     for (unsigned int i = 0 ; i < 3 ; ++i)
         for (unsigned int j = 0 ; j < 4 ; ++j)
             m[i][j] += p.m[i][j];
-    count += p.count;
 
     this->computeEquation();
 
