@@ -44,7 +44,7 @@ PointCloud::PointCloud(const std::string& filename)
         xMin = min(xMin, x);
         yMin = min(yMin, y);
         zMin = min(zMin, z);
-        addPoint(Point(x, y, z, RGB(r, g, b)));
+        addPoint(Point(x, y, z, new RGB(r, g, b)));
         count++;
     }
     middle = Vec3(xAvg/count, yAvg/count, zAvg/count);
@@ -72,10 +72,8 @@ bool PointCloud::toPly(const std::string& filename)
         << "end_header" << endl;
 
     for (int i = 0 ; i < points.size() ; ++i) {
-        Point& p = *points[i];
-        p.updateColor();
-        cout << (p.rgb.r == p.colorRef->rgb.r) << endl;
-        out << p.x << " " << p.y << " " << p.z << " " << int(p.rgb.r) << " " << int(p.rgb.g) << " " << int(p.rgb.b) << " " << endl;
+        const Point& p = *points[i];
+        out << p.x << " " << p.y << " " << p.z << " " << int(p.rgb->r) << " " << int(p.rgb->g) << " " << int(p.rgb->b) << " " << endl;
     }
 
     out.close();

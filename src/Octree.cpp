@@ -55,13 +55,15 @@ void Octree::ransac(int depthThreshold, double epsilon, int numStartPoints, int 
         std::vector<std::shared_ptr<Point> > pts;
         this->getPoints(pts);
 
-        Plane* plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur, planes);
-
-//        planes.display();
+        Plane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur, planes);
 
 
-
-
+        std::uniform_int_distribution<int> distribution(0, 255);
+        auto random = std::bind(distribution, generateur);
+        int r = random();
+        int g = random();
+        int b = random();
+        plane.setColor(new RGB(r, g, b));
 
         //std::cout << "Plan : " << plane << std::endl;
         //std::cout << "plane colored" << std::endl;

@@ -6,9 +6,9 @@
 
 #include <iostream>
 
-Plane* Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes)
+Plane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, PlaneSet& planes)
 {
-    Plane* result = new Plane(0,0,0,0);
+    Plane result(0,0,0,0);
     double score = -1;
 
     if (points.size() < numStartPoints) {
@@ -59,24 +59,16 @@ Plane* Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int numS
             for (int i = 0 ; i < pts.size() ; ++i)
                 erreur += plan.distance(points[i]);
 
-//            plan.setPoints(pts);
+            plan.setPoints(pts);
             //std::cout << plan << " : score = " << erreur << std::endl;
 
             if (score < 0 || erreur < score) {
-                *result = plan;
-                result->setPoints(pts); //! Doublon avec le plan.setPoints(pts);
+                result = plan;
+                result.setPoints(pts); //! Doublon avec le plan.setPoints(pts);
                 score = erreur;
             }
         }
     }
-    std::uniform_int_distribution<int> distribution(0, 255);
-    auto random = std::bind(distribution, generateur);
-    int r = random();
-    int g = random();
-    int b = random();
-    result->setColor(RGB(r, g, b));
     planes.addPlane(result);
-
-//    planes.display();
     return result;
 }

@@ -9,12 +9,11 @@ class PlaneSet
     public:
         PlaneSet();
         virtual ~PlaneSet();
-        void addPlane(Plane* plane) { planes.push_back(plane); }
+        void addPlane(Plane& plane) { planes.push_back(plane); }
         void makeMerges(double dTheta, double dL);
-        void display();
     protected:
     private:
-        std::vector<Plane*> planes;
+        std::vector<Plane> planes;
 };
 
 #endif // PLANESET_H
