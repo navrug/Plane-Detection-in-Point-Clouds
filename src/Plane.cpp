@@ -164,3 +164,8 @@ void Plane::merge(Plane& p, UnionFind<SharedPoint, RGB>& colors) {
 
     p = Plane();
 }
+
+
+double Plane::getCos(const Plane& p, const Plane& q) {
+    return std::fabs((q.a*p.a + q.b*p.b + q.c*p.c) / sqrt((q.a*q.a + q.b*q.b + q.c*q.c)*(p.a*p.a + p.b*p.b + p.c*p.c)));
+}
