@@ -2,11 +2,13 @@
 
 #include "Matrix.h"
 #include "Vec3.h"
+#include "ColorRef.h"
 #include <math.h>
 
 std::ostream& operator<<(std::ostream& os, const Plane& p)
 {
-    return os << "{" << p.a << "x + " << p.b << "y + " << p.c << "z + " << p.d << " : " << p.points.size() << " points, color " << p.rgb->r << " " << p.rgb->g << " " << p.rgb->b << "}";
+    return os << "{" << p.a << "x + " << p.b << "y + " << p.c << "z + " << p.d << " : " << p.points.size()
+    << " points, color " << static_cast<int>(p.rgb.r) << " " << static_cast<int>(p.rgb.g) << " " << static_cast<int>(p.rgb.b) << "}";
 }
 
 // Plan passant par trois points
@@ -21,10 +23,9 @@ Plane::Plane(const Point& p1, const Point& p2, const Point& p3)
     d = -diff;
 }
 
-// Plan passant par n points par minimisation des moindres carres
 Plane::Plane(const std::vector<SharedPoint>& pts)
 {
-    std::array<std::array<double, 4>, 3> m;
+//    std::array<std::array<double, 4>, 3> m;
 
     for (unsigned int i = 0 ; i < 3 ; ++i)
         for (unsigned int j = 0 ; j < 4 ; ++j)
@@ -83,11 +84,14 @@ void Plane::setPoints(const std::vector<SharedPoint>& pts) {
 }
 
 // Change la couleur des points du plan
-void Plane::setColor(RGB* color)
+void Plane::setColor(RGB color)
 {
     rgb = color;
-    for (SharedPoint p : points)
+    colorRef->rgb = RGB(rgb);
+    for (SharedPoint p : points) {
         p->rgb = color;
+        p->colorRef = colorRef;
+    }
 }
 
 
@@ -102,51 +106,51 @@ bool Plane::mergeableWith(const Plane& p, double dTheta, double dL) const {
     if (std::sqrt(1-cos)> dTheta) // We use the approximation cos x = 1 - x*x
         return false;
     // Comparaison des composantes affines
-    if (std::abs(d - p.d) > dL)
-        return false;
+//    if (std::abs(d - p.d) > dL)
+//        return false;
     //Ajout d’un test point par point ?
 
     return true;
 }
 
 // Inclut le plan p dans le plan objet, le plan p est vidé.
-void Plane::merge(Plane& p) {
+void Plane::merge(Plane& plane) {
     std::cout << *this << std::endl;
-    std::cout << points.size() << " + " << p.points.size() << " = " <<  points.size() + p. points.size() << std::endl;
-    radius = center.distance(p.center) + std::max(radius, p.radius);
-    center = (points.size() + p.points.size()) * (center/points.size() + p.center/p.points.size());
-    points.reserve(points.size() + p.points.size());
-    points.insert(points.end(), p.points.begin(), p.points.end());
-    p.points.clear();
+    std::cout << points.size() << " + " << plane.points.size() << " = " <<  points.size() + plane. points.size() << std::endl;
+    radius = center.distance(plane.center) + std::max(radius, plane.radius);
+    center = (points.size() + plane.points.size()) * (center/points.size() + plane.center/plane.points.size());
+    points.reserve(points.size() + plane.points.size());
+    points.insert(points.end(), plane.points.begin(), plane.points.end());
+    plane.points.clear();
 
     // On recalcule l’equation du plan, on change au passage la couleur des points
-    std::array<std::array<double, 4>, 3> m;
+//    std::array<std::array<double, 4>, 3> m;
 
     for (unsigned int i = 0 ; i < 3 ; ++i)
         for (unsigned int j = 0 ; j < 4 ; ++j)
-            m[i][j] = 0;
+//            m[i][j] = 0;
+            m[i][j] += plane.m[i][j];
+
+    plane.setNewRef(colorRef);
 
     for (unsigned int n = 0 ; n < points.size() ; ++n)
     {
-        Point& p = *points[n];
-        if (rgb->r == 0  && rgb->g == 0 && rgb->b == 0)
-            std::cout << "BLACK" << std::endl;
-        p.rgb = rgb;
-
-        m[0][0] += p.x * p.x;
-        m[0][1] += p.x * p.y;
-        m[0][2] += p.x * p.z;
-        m[0][3] += p.x;
-
-        m[1][0] += p.y * p.x;
-        m[1][1] += p.y * p.y;
-        m[1][2] += p.y * p.z;
-        m[1][3] += p.y;
-
-        m[2][0] += p.z * p.x;
-        m[2][1] += p.z * p.y;
-        m[2][2] += p.z * p.z;
-        m[2][3] += p.z;
+//        Point& p = *points[n];
+        points[n]->rgb = RGB(rgb);
+//        m[0][0] += p.x * p.x;
+//        m[0][1] += p.x * p.y;
+//        m[0][2] += p.x * p.z;
+//        m[0][3] += p.x;
+//
+//        m[1][0] += p.y * p.x;
+//        m[1][1] += p.y * p.y;
+//        m[1][2] += p.y * p.z;
+//        m[1][3] += p.y;
+//
+//        m[2][0] += p.z * p.x;
+//        m[2][1] += p.z * p.y;
+//        m[2][2] += p.z * p.z;
+//        m[2][3] += p.z;
     }
 
     // L'equation du plan est un vecteur du noyau de m
