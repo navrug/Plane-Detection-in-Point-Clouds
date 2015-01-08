@@ -12,7 +12,7 @@ class PointCloud
 public:
     PointCloud(const std::string& filename);
     
-    bool toPly(const std::string& filename);
+    bool toPly(const std::string& filename, bool showPlanes);
     void addPoint(SharedPoint p, RGB color);
     SharedPoint pointAt(int i) const { return points.at(i); }
     int size() const { return points.size(); }

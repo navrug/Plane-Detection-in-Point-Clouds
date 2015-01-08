@@ -58,7 +58,7 @@ PointCloud::PointCloud(const std::string& filename)
     cout << "Created a PointCloud of " << count << " points." << endl;
 }
 
-bool PointCloud::toPly(const std::string& filename)
+bool PointCloud::toPly(const std::string& filename, bool showPlanes)
 {
     ofstream out(filename.c_str());
     if (!out.is_open()) {
@@ -78,7 +78,11 @@ bool PointCloud::toPly(const std::string& filename)
         << "end_header" << endl;
 
     for (SharedPoint p : points) {
-        RGB rgb = colors.at(p);
+        RGB rgb;
+        if (showPlanes)
+            rgb = colors.at(p);
+        else
+            rgb = p->inPlane ? RGB(255, 255, 255) : RGB(0, 0, 0);
         out << p->x << " " << p->y << " " << p->z << " " << int(rgb.r) << " " << int(rgb.g) << " " << int(rgb.b) << " " << endl;
     }
 

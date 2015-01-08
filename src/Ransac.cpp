@@ -76,7 +76,10 @@ SharedPlane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int
     }
 
     for (auto&& p : result_pts)
+    {
         colors.merge(p, result_pts[0]);
+        p->inPlane = true;
+    }
 
     return result;
 }

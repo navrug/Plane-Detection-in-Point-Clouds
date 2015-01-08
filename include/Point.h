@@ -9,12 +9,14 @@ class Point : public Vec3
 {
 public:
     inline Point(double x, double y, double z) :
-        Vec3(x, y, z) {}
+        Vec3(x, y, z), inPlane(false) {}
     inline Point(const Vec3& position) :
-        Vec3(position) {}
+        Vec3(position), inPlane(false) {}
 
     inline bool equals(const std::shared_ptr<Point>& p)
         {return x == p->x && y == p->y && z == p->z;}
+
+    bool inPlane;
 };
 
 typedef std::shared_ptr<Point> SharedPoint;
