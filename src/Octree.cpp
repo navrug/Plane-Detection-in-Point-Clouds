@@ -2,6 +2,7 @@
 
 #include "Ransac.h"
 #include "PlaneSet.h"
+#include <algorithm>
 
 unsigned int Octree::maxdepth = 30;
 
@@ -22,7 +23,7 @@ Octree::Octree(const PointCloud& cloud) :
 }
 
 
-void Octree::getPoints(std::vector<std::shared_ptr<Point> >& pts) const
+void Octree::getPoints(std::vector<SharedPoint>& pts) const
 {
     if (isLeafNode())
     {
@@ -34,15 +35,22 @@ void Octree::getPoints(std::vector<std::shared_ptr<Point> >& pts) const
             child->getPoints(pts);
 }
 
-void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL) const
+void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL, std::vector<SharedPoint>& pts) const
 {
     // Recursion
     if (count > depthThreshold)
     {
         std::vector<SharedPlane> set;
         for (auto&& child : children)
+        {
+            std::vector<SharedPoint> child_pts;
             if (child.get() != nullptr)
-                child->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, set, colors, dCos, dL);
+            {
+                child->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, set, colors, dCos, dL, child_pts);
+                for (auto&& p : child_pts)
+                    pts.push_back(p);
+            }
+        }
 
         for (unsigned int i = 0 ; i < set.size() ; ++i)
         {
@@ -56,14 +64,38 @@ void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints
             }
         }
 
-        for (unsigned int i = 0 ; i < set.size() ; ++i)
-            if (set[i])
-                planes.push_back(set[i]);
+        //*
+        // Try to match free points to planes.
+        for (auto&& p : pts)
+        {
+            if (!p->inPlane)
+            {
+                std::vector<std::pair<SharedPlane, double> > dist;
+                for (SharedPlane plane : set)
+                    if (plane && plane->accept(p))
+                        dist.push_back(std::make_pair(plane, plane->distance(p)));
+
+                if (!dist.empty())
+                {
+                    std::sort(dist.begin(), dist.end(), [](const std::pair<SharedPlane, double>& a, const std::pair<SharedPlane, double>& b){ return a.second < b.second; });
+                    dist[0].first->addPoint(p, colors);
+                }
+            }
+        }
+        //*/
+
+        for (SharedPlane plane : set)
+        {
+            if (plane)
+            {
+                plane->computeEquation();
+                planes.push_back(plane);
+            }
+        }
     }
     // Do ransac
     else
     {
-        std::vector<std::shared_ptr<Point> > pts;
         this->getPoints(pts);
 
         SharedPlane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generateur, colors);

@@ -20,20 +20,35 @@ SharedPlane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int
         return result;
     }
 
-    // On calcule la l'écart-type de la distance entre les points
+    // Centre du nuage de points
     Vec3 center;
     for (auto&& point : points)
         center += *point;
     center /= points.size();
+    Vec3 c2 = center.product(center);
+    //std::cout << "center.product(center) = {" << c2.x << ", " << c2.y << ", " << c2.z << "}" << std::endl;
 
-    double stddev = 0;
+    // Variance dans chaque direction
+    Vec3 meansq;
     for (auto&& point : points)
-        stddev += center.squareDistance(*point);
-    stddev /= points.size();
-    stddev = std::sqrt(stddev);
+    {
+        //std::cout << "\tpoint = {" << point->x << ", " << point->y << ", " << point->z << "}" << std::endl;
+        //Vec3 p = point->product(*point);
+        //std::cout << "\tpoint.product(point) = {" << p.x << ", " << p.y << ", " << p.z << "}" << std::endl;
+        meansq += point->product(*point);
+    }
+    meansq /= points.size();
+    //std::cout << "meansq = {" << meansq.x << ", " << meansq.y << ", " << meansq.z << "}" << std::endl;
 
-    // Le seuil de distance est proportionnel à cet écart-type.
-    epsilon *= stddev;
+    Vec3 stddev = meansq - center.product(center);
+    std::cout << "stddev = {" << stddev.x << ", " << stddev.y << ", " << stddev.z << "}" << std::endl;
+
+    // Rayon approximatif du nuage
+    double radius = std::sqrt(stddev.x + stddev.y + stddev.z);
+    std::cout << "radius = " << radius << std::endl;
+
+    // Le seuil de distance est proportionnel à ce rayon.
+    epsilon *= radius / points.size();
 
 
     std::vector<SharedPoint> result_pts;

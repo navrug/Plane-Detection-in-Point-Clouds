@@ -12,16 +12,23 @@ class Plane
 public:
     //Plane(double a_, double b_, double c_, double d_) : a(a_), b(b_), c(c_), d(d_) {}
     Plane();
-    // Plan passant par trois points
-    //Plane(const Point& p1, const Point& p2, const Point& p3);
     // Plan passant par n points par minimisation des moindres carres
     Plane(const std::vector<SharedPoint>& pts);
 
     // Carre de la distance entre le point et le plan
     double distance(SharedPoint p);
 
+    // Verifie si un point est acceptable dans le plan
+    bool accept(SharedPoint p);
+
     // Si le plan est bien defini (vecteur normal non nul)
     bool isValid() {return a != 0 || b != 0 || c != 0;}
+
+    // Ajoute un point au plan (sans recalculer l'equation)
+    void addPoint(SharedPoint p, UnionFind<SharedPoint, RGB>& colors);
+
+    // Calcule l'equation par minimisation des moindres carres.
+    void computeEquation();
 
     // Lie un plan à ses points, calcule au passage le barycentre et le rayon du nuage de points
     void setPoints(const std::vector<SharedPoint>& pts);
@@ -36,8 +43,8 @@ public:
     // Inclut le plan p dans le plan objet, le plan p est vide.
     void merge(Plane& p, UnionFind<SharedPoint, RGB>& colors);
 
-    // Donne la distance entre deux point selon la normale au plan p
-    static double distanceAlong(Vec3 u, Vec3 v, const Plane& p);
+    // Donne la distance entre deux points selon la normale au plan
+    double distanceAlong(Vec3 u, Vec3 v) const;
 
     // Valeur absolue du cosinus entre les vecteurs normaux.
     static double getCos(const Plane& p, const Plane& q);
@@ -45,12 +52,8 @@ public:
 private:
     // Initialise la matrice M
     void init();
-    // Ajoute un point a la matrice M
+    // Ajoute un point au plan (sans recalculer l'equation)
     void addPoint(const Point& p);
-    // Calcule l'equation par minimisation des moindres carres.
-    void computeEquation();
-    // Calcule la sphere englobant les points du plan.
-    void computeSphere(const std::vector<SharedPoint>& points);
 
     //Coordinates corresponding to the plane equation ax+by+cz+d=0
     double a, b, c, d;
@@ -65,6 +68,7 @@ private:
     //Attributes for plane merging
     Vec3 center; // Currently the barycenter, but it would be better to have the circumcenter if we could find an efficient computation method
     double radius;
+    double thickness;
 
     friend std::ostream& operator<<(std::ostream& os, const Plane& p);
 };

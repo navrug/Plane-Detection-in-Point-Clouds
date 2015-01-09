@@ -21,9 +21,15 @@ public:
 
     void insert(SharedPoint p, unsigned int depth);
 
-    void getPoints(std::vector<std::shared_ptr<Point> >& pts) const;
+    void getPoints(std::vector<SharedPoint>& pts) const;
 
-    void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL) const;
+    void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL, std::vector<SharedPoint>& pts) const;
+
+    inline void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL) const
+    {
+        std::vector<SharedPoint> pts;
+        this->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, planes, colors, dCos, dL, pts);
+    }
 
 
     // This is a really simple routine for querying the tree for points

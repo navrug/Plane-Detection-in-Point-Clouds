@@ -14,7 +14,7 @@ struct Vec3 {
 		double D[3];
 	};
 
-	Vec3() { }
+    Vec3() : x(0), y(0), z(0) { }
 	Vec3(double _x, double _y, double _z)
 		:x(_x), y(_y), z(_z)
 	{ }
@@ -107,9 +107,13 @@ struct Vec3 {
 		return sqrtf((x-r.x)*(x-r.x)+(y-r.y)*(y-r.y)+(z-r.z)*(z-r.z));
 	}
 
-	double squareDistance(const Vec3& r) const {
-		return (x-r.x)*(x-r.x)+(y-r.y)*(y-r.y)+(z-r.z)*(z-r.z);
-	}
+    double squareDistance(const Vec3& r) const {
+        return (x-r.x)*(x-r.x)+(y-r.y)*(y-r.y)+(z-r.z)*(z-r.z);
+    }
+
+    Vec3 product(const Vec3& r) const {
+        return Vec3(x * r.x, y * r.y, z * r.z);
+    }
 
 	// Cross product
 	Vec3 operator^(const Vec3& r) const {
