@@ -13,18 +13,43 @@ void PointCloud::addPoint(SharedPoint p, RGB color)
     colors.append(p, color);
 }
 
+bool hasEnding (string const &fullString, string const &ending)
+{
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
+enum Extension { PLY, XYZ, TROISD };
+
+
 PointCloud::PointCloud(const std::string& filename)
 {
+    Extension ext;
+    if (hasEnding(filename, ".xyz"))
+        ext = XYZ;
+    else if (hasEnding(filename, ".3d"))
+        ext = TROISD;
+    else
+        throw 0;
+
     ifstream infile(filename.c_str());
     string line;
     getline(infile, line);
     getline(infile, line);
     int size;
     istringstream iss(line);
-    if (!(iss >> size)) {
-        cout << "Error : size missing.";
-        return;
+    // Handling preamble
+    switch (ext) {
+        case TROISD:
+            if (!(iss >> size)) {
+                cout << "Error : size missing.";
+                return;
+            }; break;
     }
+
     int count(0);
     double xAvg(0);
     double yAvg(0);
@@ -38,9 +63,12 @@ PointCloud::PointCloud(const std::string& filename)
     while (getline(infile, line))
     {
         istringstream iss(line);
-        double x, y, z;
-        unsigned int r, g, b;
-        if (!(iss >> x >> y >> z >> r >> g >> b)) { break; } // error
+        double x, y, z, a;
+        unsigned int r(0), g(0), b(0);
+        switch (ext) {
+            case XYZ: if (!(iss >> x >> y >> z >> r >> g >> b)) { return; }; break;
+            case TROISD: if (!(iss >> x >> y >> z >> a)) { return; }; break;
+        }
         xAvg += x;
         yAvg += y;
         zAvg += z;
