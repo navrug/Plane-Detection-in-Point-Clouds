@@ -34,7 +34,7 @@ double Plane::distance(SharedPoint p)
 // Accepte un point dans le plan
 bool Plane::accept(SharedPoint p)
 {
-    return (p->distanceFrom(center) < 2*radius) && (this->distance(p) <= 3 * thickness);
+    return this->distance(p) <= 3 * thickness;
 }
 
 // Ajoute un point au plan (sans recalculer l'equation)

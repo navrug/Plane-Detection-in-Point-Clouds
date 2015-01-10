@@ -5,7 +5,6 @@
 #include <iostream>
 #include <random>
 #include <math.h>
-#include <time.h>
 
 #include "Matrix.h"
 #include "PlaneSet.h"
@@ -27,7 +26,7 @@ int main()
 {
 
     std::string file = "Cloud.xyz";
-//    std::string file = "scan148.3d";
+    //std::string file = "extract.xyz";
     PointCloud cloud(file);
     std::cout << "Cloud loaded !" << std::endl;
 
@@ -42,16 +41,7 @@ int main()
     plane.setColor(RGB(255, 0, 0));
     //*/
     std::vector<SharedPlane> planes;
-
-    //                  (depthThreshold, epsilon, numStartPoints, numPoints, generateur, planes, colors, dCos, dL, pts)
-
-    clock_t begin = clock();
-
     octree.detectPlanes(100, 0.1, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 1);
-
-    clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-    std::cout << "Running time: " << elapsed_secs << " seconds." << std::endl;
 
     cloud.toPly("detect.ply", true);
     cloud.toPly("inplane.ply", false);
