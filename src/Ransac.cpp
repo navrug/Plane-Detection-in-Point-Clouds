@@ -41,11 +41,11 @@ SharedPlane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int
     //std::cout << "meansq = {" << meansq.x << ", " << meansq.y << ", " << meansq.z << "}" << std::endl;
 
     Vec3 stddev = meansq - center.product(center);
-    std::cout << "stddev = {" << stddev.x << ", " << stddev.y << ", " << stddev.z << "}" << std::endl;
+//    std::cout << "stddev = {" << stddev.x << ", " << stddev.y << ", " << stddev.z << "}" << std::endl;
 
     // Rayon approximatif du nuage
     double radius = std::sqrt(stddev.x + stddev.y + stddev.z);
-    std::cout << "radius = " << radius << std::endl;
+//    std::cout << "radius = " << radius << std::endl;
 
     // Le seuil de distance est proportionnel à ce rayon.
     epsilon *= radius / points.size();
