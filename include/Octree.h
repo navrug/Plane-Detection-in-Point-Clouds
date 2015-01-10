@@ -34,13 +34,13 @@ public:
 private:
     // Physical position/size. This implicitly defines the bounding
     // box of this node
-    Vec3 origin;         //! The physical center of this node
-    Vec3 halfDimension;  //! Half the width/height/depth of this node
+    Vec3 origin;         // The physical center of this node
+    Vec3 halfDimension;  // Half the width/height/depth of this node
 
     // The tree has up to eight children and can additionally store
     // a point, though in many applications only, the leaves will store data.
-    std::shared_ptr<Octree> children[8]; //! Pointers to child octants
-    SharedPoint point;   //! Data point to be stored at a node
+    std::shared_ptr<Octree> children[8]; // Pointers to child octants
+    SharedPoint point;   // Data point to be stored at a node
     unsigned int count; // number of points inside
 
     /*

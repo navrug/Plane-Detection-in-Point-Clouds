@@ -89,6 +89,17 @@ void Plane::computeSphere(const std::vector<SharedPoint>& points)
     }
 }
 
+// Calcul l’écart type des points au plan selon la normale
+void Plane::computeDeviation(const std::vector<SharedPoint>& pts) {
+    normDev = 0;
+    for (auto&& point : pts)
+        normDev += pow(distanceAlong(center, *point, *this), 2);
+    normDev /= pts.size();
+
+    //! TEMPORAIRE
+    normDev = 10;
+}
+
 // Lie un plan à ses points, calcule au passage le barycentre et le rayon du nuage de points.
 void Plane::setPoints(const std::vector<SharedPoint>& pts)
 {
@@ -101,6 +112,7 @@ void Plane::setPoints(const std::vector<SharedPoint>& pts)
         this->addPoint(*p);
     this->computeEquation();
     this->computeSphere(pts);
+//    this->computeDeviation(pts);
 }
 
 // Change la couleur des points du plan

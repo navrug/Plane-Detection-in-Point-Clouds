@@ -8,6 +8,7 @@
 
 #include "Matrix.h"
 #include "PlaneSet.h"
+#include "PostMatching.h"
 
 template<size_t N>
 void printArray(const std::array<double, N>& a)
@@ -42,6 +43,9 @@ int main()
     //*/
     std::vector<SharedPlane> planes;
     octree.detectPlanes(100, 0.05, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 1);
+    std::cout << "Merging done!" << std::endl;
+    postMatch(cloud, planes, 5);
+    std::cout << "Post-matching done!" << std::endl;
 
     cloud.toPly("detect.ply", true);
     cloud.toPly("inplane.ply", false);

@@ -17,6 +17,12 @@ public:
     // Plan passant par n points par minimisation des moindres carres
     Plane(const std::vector<SharedPoint>& pts);
 
+    Vec3& getCenter() { return center; }
+
+    double getDeviation() { return normDev; }
+
+    SharedPoint getPoint() { return point; }
+
     // Carre de la distance entre le point et le plan
     double distance(SharedPoint p);
 
@@ -42,6 +48,7 @@ public:
     // Valeur absolue du cosinus entre les vecteurs normaux.
     static double getCos(const Plane& p, const Plane& q);
 
+
 private:
     // Initialise la matrice M
     void init();
@@ -51,6 +58,9 @@ private:
     void computeEquation();
     // Calcule la sphere englobant les points du plan.
     void computeSphere(const std::vector<SharedPoint>& points);
+
+    // Calcul l’écart type des points au plan selon la normale
+    void computeDeviation(const std::vector<SharedPoint>& pts);
 
     //Coordinates corresponding to the plane equation ax+by+cz+d=0
     double a, b, c, d;
@@ -65,6 +75,7 @@ private:
     //Attributes for plane merging
     Vec3 center; // Currently the barycenter, but it would be better to have the circumcenter if we could find an efficient computation method
     double radius;
+    double normDev;
 
     friend std::ostream& operator<<(std::ostream& os, const Plane& p);
 };
