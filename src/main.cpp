@@ -3,12 +3,17 @@
 #include "Octree.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <random>
-#include <math.h>
+#include <algorithm>
 
 #include "Matrix.h"
 #include "PlaneSet.h"
+#include "Test.h"
 
+/*
 template<size_t N>
 void printArray(const std::array<double, N>& a)
 {
@@ -21,13 +26,22 @@ void printArray(const std::array<double, N>& a)
     }
     std::cout << ")" << std::endl;
 }
+//*/
 
 int main()
 {
+    Test::testSymmetricPoints();
 
+    PointCloud cloud;
+    /*
     std::string file = "Cloud.xyz";
-    //std::string file = "extract.xyz";
-    PointCloud cloud(file);
+    cloud.loadPly(file);
+    //*/
+    /*
+    std::string file = "../data/test.3d";
+    cloud.load3D(file);
+    //*/
+    cloud = Test::symmetricCloud();
     std::cout << "Cloud loaded !" << std::endl;
 
     Octree octree(cloud);
@@ -43,6 +57,12 @@ int main()
     std::vector<SharedPlane> planes;
     octree.detectPlanes(100, 0.1, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 1);
 
+    std::cout << std::endl << planes.size() << " planes :" << std::endl;
+    std::sort(planes.begin(), planes.end(), [](const SharedPlane& a, const SharedPlane& b){return a->getCount() < b->getCount();});
+    for (auto&& p : planes)
+        std::cout << *p << std::endl;
+
+    std::cout << "Saving..." << std::endl;
     cloud.toPly("detect.ply", true);
     cloud.toPly("inplane.ply", false);
 

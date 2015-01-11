@@ -16,6 +16,7 @@ ADD_EXECUTABLE(
     include/PointCloud.h
     include/Ransac.h
     include/RGB.h
+    include/Test.h
     include/UnionFind.h
     include/Vec3.h
     src/Octree.cpp
@@ -24,6 +25,7 @@ ADD_EXECUTABLE(
     src/PointCloud.cpp
     src/Ransac.cpp
     src/RGB.cpp
+    src/Test.cpp
     src/main.cpp
 )
 

@@ -49,6 +49,9 @@ public:
     // Valeur absolue du cosinus entre les vecteurs normaux.
     static double getCos(const Plane& p, const Plane& q);
 
+    inline unsigned int getCount()
+        {return count;}
+
 private:
     // Initialise la matrice M
     void init();

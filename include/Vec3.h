@@ -115,6 +115,10 @@ struct Vec3 {
         return Vec3(x * r.x, y * r.y, z * r.z);
     }
 
+    Vec3 divide(const Vec3& r) const {
+        return Vec3(x / r.x, y / r.y, z / r.z);
+    }
+
 	// Cross product
 	Vec3 operator^(const Vec3& r) const {
 		return Vec3(
@@ -127,6 +131,18 @@ struct Vec3 {
 	Vec3 normalized() const {
 		return *this / norm();
 	}
+
+    void max(const Vec3& p) {
+        x = p.x > x ? p.x : x;
+        y = p.y > y ? p.y : y;
+        z = p.z > z ? p.z : z;
+    }
+
+    void min(const Vec3& p) {
+        x = p.x < x ? p.x : x;
+        y = p.y < y ? p.y : y;
+        z = p.z < z ? p.z : z;
+    }
 };
 
 inline Vec3 operator*(double r, const Vec3& v) {

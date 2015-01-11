@@ -120,7 +120,6 @@ void Plane::computeEquation()
 // Lie un plan à ses points, calcule au passage le barycentre et le rayon du nuage de points.
 void Plane::setPoints(const std::vector<SharedPoint>& pts)
 {
-    //count = pts.size();
     if (!pts.empty())
         point = pts[0];
 
@@ -158,7 +157,7 @@ bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
         return false;
     //*/
 
-    /*
+    //*
     // Test écart angulaire avec le nouveau plan
     Plane tempPlane;
     for (unsigned int i = 0 ; i < 3 ; ++i)
@@ -166,10 +165,18 @@ bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
             tempPlane.m[i][j] = m[i][j] + p.m[i][j];
     tempPlane.count = count + p.count;
     tempPlane.computeEquation();
+    //*/
 
+    //*
+    if (tempPlane.radius > radius + p.radius)
+        return false;
+    //*/
+    //*
     if (getCos(tempPlane, *this)<dCos || getCos(tempPlane, p)<dCos)
         return false;
-    if (tempPlane.thickness > 3 * std::max(thickness, p.thickness))
+    //*/
+    //*
+    if (tempPlane.thickness > thickness + p.thickness)
         return false;
     //*/
 

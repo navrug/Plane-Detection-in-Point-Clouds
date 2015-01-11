@@ -5,77 +5,100 @@
 #include <sstream>
 #include <limits>
 
-using namespace std;
-
 void PointCloud::addPoint(SharedPoint p, RGB color)
 {
+    center += *p;
+    max.max(*p);
+    min.min(*p);
+
     points.push_back(p);
     colors.append(p, color);
 }
 
-PointCloud::PointCloud(const std::string& filename)
+void PointCloud::finishLoad()
 {
-    ifstream infile(filename.c_str());
-    string line;
-    getline(infile, line);
-    getline(infile, line);
+    center /= points.size();
+    halfDimension = (max - min) / 2;
+    std::cout << "Created a PointCloud of " << points.size() << " points." << std::endl;
+}
+
+PointCloud::PointCloud()
+{
+    min = Vec3(
+                std::numeric_limits<double>::infinity(),
+                std::numeric_limits<double>::infinity(),
+                std::numeric_limits<double>::infinity());
+    max = Vec3(
+                -std::numeric_limits<double>::infinity(),
+                -std::numeric_limits<double>::infinity(),
+                -std::numeric_limits<double>::infinity());
+}
+
+void PointCloud::loadPly(const std::string& filename)
+{
+    std::ifstream infile(filename.c_str());
+
+    std::string line;
+    std::getline(infile, line);
+    std::getline(infile, line);
+
     int size;
-    istringstream iss(line);
+    std::istringstream iss(line);
     if (!(iss >> size)) {
-        cout << "Error : size missing.";
+        std::cerr << "Error : size missing.";
         return;
     }
-    int count(0);
-    double xAvg(0);
-    double yAvg(0);
-    double zAvg(0);
-    double xMax = -numeric_limits<double>::infinity();
-    double yMax = -numeric_limits<double>::infinity();
-    double zMax = -numeric_limits<double>::infinity();
-    double xMin = numeric_limits<double>::infinity();
-    double yMin = numeric_limits<double>::infinity();
-    double zMin = numeric_limits<double>::infinity();
-    while (getline(infile, line))
+
+    while (std::getline(infile, line))
     {
-        istringstream iss(line);
+        std::istringstream iss(line);
         double x, y, z;
         unsigned int r, g, b;
-        if (!(iss >> x >> y >> z >> r >> g >> b)) { break; } // error
-        xAvg += x;
-        yAvg += y;
-        zAvg += z;
-        xMax = max(xMax, x);
-        yMax = max(yMax, y);
-        zMax = max(zMax, z);
-        xMin = min(xMin, x);
-        yMin = min(yMin, y);
-        zMin = min(zMin, z);
-        addPoint(std::make_shared<Point>(x, y, z), RGB(r, g, b));
-        count++;
+        if (!(iss >> x >> y >> z >> r >> g >> b))
+            break; // error
+
+        this->addPoint(std::make_shared<Point>(x, y, z), RGB(r, g, b));
     }
-    middle = Vec3(xAvg/count, yAvg/count, zAvg/count);
-    halfDimension = Vec3((xMax - xMin)/2, (yMax - yMin)/2, (zMax - zMin)/2);
-    cout << "Created a PointCloud of " << count << " points." << endl;
+
+    this->finishLoad();
+}
+
+void PointCloud::load3D(const std::string& filename)
+{
+    std::ifstream infile(filename.c_str());
+    std::string line;
+
+    while (std::getline(infile, line))
+    {
+        std::istringstream iss(line);
+        double x, y, z;
+        if (!(iss >> x >> y >> z))
+            break; // error
+
+        this->addPoint(std::make_shared<Point>(x, y, z), RGB(128, 128, 128));
+    }
+
+    this->finishLoad();
 }
 
 bool PointCloud::toPly(const std::string& filename, bool showPlanes)
 {
-    ofstream out(filename.c_str());
+    std::ofstream out(filename.c_str());
     if (!out.is_open()) {
-        cout << "Cannot save " << filename << endl;
+        std::cerr << "Cannot save " << filename << std::endl;
         return false;
     }
 
-    out << "ply" << endl
-        << "format ascii 1.0" << endl
-        << "element vertex " << points.size() << endl
-        << "property float x" << endl
-        << "property float y" << endl
-        << "property float z" << endl
-        << "property uchar red" << endl
-        << "property uchar green" << endl
-        << "property uchar blue" << endl
-        << "end_header" << endl;
+    out << "ply" << std::endl
+        << "format ascii 1.0" << std::endl
+        << "element vertex " << points.size() << std::endl
+        << "property float x" << std::endl
+        << "property float y" << std::endl
+        << "property float z" << std::endl
+        << "property uchar red" << std::endl
+        << "property uchar green" << std::endl
+        << "property uchar blue" << std::endl
+        << "end_header" << std::endl;
 
     for (SharedPoint p : points) {
         RGB rgb;
@@ -83,10 +106,10 @@ bool PointCloud::toPly(const std::string& filename, bool showPlanes)
             rgb = colors.at(p);
         else
             rgb = p->inPlane ? RGB(255, 255, 255) : RGB(0, 0, 0);
-        out << p->x << " " << p->y << " " << p->z << " " << int(rgb.r) << " " << int(rgb.g) << " " << int(rgb.b) << " " << endl;
+        out << p->x << " " << p->y << " " << p->z << " " << int(rgb.r) << " " << int(rgb.g) << " " << int(rgb.b) << " " << std::endl;
     }
 
     out.close();
-    cout << "Ply " << filename << " exported." << endl;
+    std::cout << "Ply " << filename << " exported." << std::endl;
     return true;
 }

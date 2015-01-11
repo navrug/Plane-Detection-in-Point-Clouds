@@ -13,7 +13,7 @@ Octree::Octree(const Vec3& origin, const Vec3& halfDimension) :
 }
 
 Octree::Octree(const PointCloud& cloud) :
-    origin(cloud.getMiddle()), halfDimension(cloud.getHalfDimension()), count(0)
+    origin(cloud.getCenter()), halfDimension(cloud.getHalfDimension()), count(0)
 {
     for (int i = 0 ; i < cloud.size() ; ++i)
     {
@@ -64,7 +64,6 @@ void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints
             }
         }
 
-        //*
         // Try to match free points to planes.
         for (auto&& p : pts)
         {
@@ -82,7 +81,6 @@ void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints
                 }
             }
         }
-        //*/
 
         for (SharedPlane plane : set)
         {
@@ -137,17 +135,12 @@ void Octree::insert(SharedPoint p, unsigned int depth)
         return;
     }
 
-    //std::cout << "insert in {(" << origin.x << ", " << origin.y << ", " << origin.z << "), (" << halfDimension.x << ", " << halfDimension.y << ", " << halfDimension.z << ")}" << std::endl;
-
     // If this node doesn't have a data point yet assigned
     // and it is a leaf, then we're done!
     if (!isLeafNode())
     {
         // We are at an interior node. Insert recursively into the
         // appropriate child octant
-
-        //std::cout << ">>node : findOctant(p) : " << findOctant(p) << std::endl;
-
         children[findOctant(p)]->insert(p, depth + 1);
         ++count;
     }
@@ -191,13 +184,6 @@ void Octree::insert(SharedPoint p, unsigned int depth)
             // Re-insert the old point, and insert this new point
             // (We wouldn't need to insert from the root, because we already
             // know it's guaranteed to be in this section of the tree)
-
-            //std::cout << "+>oldPoint : [" << oldPoint->x << ", " << oldPoint->y << ", " << oldPoint->z << "]" << std::endl;
-            //std::cout << "+>p : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
-
-            //std::cout << "+>leaf findOctant(oldPoint) : " << findOctant(oldPoint) << std::endl;
-            //std::cout << "+>leaf findOctant(p) : " << findOctant(p) << std::endl;
-
             children[findOctant(oldPoint)]->insert(oldPoint, depth + 1);
             children[findOctant(p)]->insert(p, depth + 1);
             ++count;
