@@ -31,7 +31,7 @@ void printArray(const std::array<double, N>& a)
 
 int main()
 {
-    Test::testSymmetricPoints();
+    //Test::testSymmetricPoints();
     //return 0;
 
     PointCloud cloud;
@@ -43,7 +43,8 @@ int main()
     std::string file = "../data/test.3d";
     cloud.load3D(file);
     //*/
-    cloud = Test::symmetricCloud();
+    //cloud = Test::createTwoPlanes();
+    cloud = Test::createParallelPlanes(50, 20);
     /*
     std::string file = "scan148.3d";
     cloud.load3D(file);

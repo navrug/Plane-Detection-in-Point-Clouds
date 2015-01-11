@@ -6,7 +6,8 @@
 class Test
 {
 public:
-    static PointCloud symmetricCloud();
+    static PointCloud createTwoPlanes();
+    static PointCloud createParallelPlanes(int size, unsigned int count);
     static void testSymmetricPoints();
 };
 
