@@ -34,6 +34,8 @@ int main()
     //Test::testSymmetricPoints();
     //return 0;
 
+    std::default_random_engine random;
+
     PointCloud cloud;
     /*
     std::string file = "Cloud.xyz";
@@ -44,7 +46,12 @@ int main()
     cloud.load3D(file);
     //*/
     //cloud = Test::createTwoPlanes();
-    cloud = Test::createParallelPlanes(50, 20);
+    //cloud = Test::createParallelPlanes(50, 20);
+    /*
+    cloud = Test::createCube(20);
+    cloud.merge(Test::createCube(50));
+    //*/
+    cloud = Test::createRandomPlanes(50, 10, random);
     /*
     std::string file = "scan148.3d";
     cloud.load3D(file);
@@ -54,8 +61,7 @@ int main()
     Octree octree(cloud);
     std::cout << "Octree loaded !" << std::endl;
 
-    std::default_random_engine random;
-    random.seed(333);
+    //random.seed(333);
     /*
     Plane plane = ransac(cloud.getPoints(), 1, 3, 10, 100, random);
     std::cout << "Plan : " << plane << std::endl;

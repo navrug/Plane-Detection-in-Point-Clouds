@@ -5,6 +5,14 @@
 #include <sstream>
 #include <limits>
 
+void PointCloud::merge(const PointCloud& other)
+{
+    center *= points.size();
+    for (SharedPoint p : other.points)
+        addPoint(p, other.colors.at(p));
+    finishLoad();
+}
+
 void PointCloud::addPoint(SharedPoint p, RGB color)
 {
     center += *p;

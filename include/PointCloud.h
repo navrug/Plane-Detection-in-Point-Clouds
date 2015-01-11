@@ -14,6 +14,8 @@ public:
     PointCloud();
     void loadPly(const std::string& filename);
     void load3D(const std::string& filename);
+
+    void merge(const PointCloud& other);
     
     bool toPly(const std::string& filename, bool showPlanes);
     SharedPoint pointAt(int i) const { return points.at(i); }

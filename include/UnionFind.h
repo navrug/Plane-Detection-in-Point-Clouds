@@ -26,7 +26,7 @@ public:
         cells[key] = std::make_shared<Cell>(value);
     }
 
-    Value at(const Key& key)
+    Value at(const Key& key) const
     {
         std::shared_ptr<Cell> c = find(key);
         if (c)
@@ -51,7 +51,7 @@ public:
     }
     
 private:
-    std::shared_ptr<Cell> find(const Key& key)
+    std::shared_ptr<Cell> find(const Key& key) const
     {
         auto found = cells.find(key);
         if (found == cells.end())

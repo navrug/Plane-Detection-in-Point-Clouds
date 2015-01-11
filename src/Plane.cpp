@@ -160,7 +160,11 @@ void Plane::computeEquation()
         mean += m[i][3] * eq[i];
     mean /= count;
 
-    thickness = std::sqrt(meansq - mean * mean);
+    // Usually due to rounding errors when points are perfectly aligned.
+    if (meansq - mean * mean < 0)
+        thickness = 0;
+    else
+        thickness = std::sqrt(meansq - mean * mean);
 }
 
 // Lie un plan à ses points, calcule au passage le barycentre et le rayon du nuage de points.
