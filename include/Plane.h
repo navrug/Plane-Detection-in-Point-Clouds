@@ -58,6 +58,8 @@ private:
     // Ajoute un point au plan (sans recalculer l'equation)
     void addPoint(const Point& p);
 
+    std::array<double, 4> leastSquares() const;
+
     //Coordinates corresponding to the plane equation ax+by+cz+d=0
     double a, b, c, d;
 

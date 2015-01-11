@@ -3,6 +3,7 @@
 #include "Matrix.h"
 #include "Vec3.h"
 #include <math.h>
+#include <opencv2/core/core.hpp>
 
 std::ostream& operator<<(std::ostream& os, const Plane& p)
 {
@@ -83,9 +84,34 @@ void Plane::addPoint(const Point& p)
     m[2][3] += p.z;
 }
 
+std::array<double, 4> Plane::leastSquares() const
+{
+    //center = Vec3(m[0][3], m[1][3], m[2][3]) / count;
+
+    cv::Mat mat(3, 3, CV_64FC1);
+    for (unsigned int i = 0 ; i < 3 ; ++i)
+        for (unsigned int j = 0 ; j < 3 ; ++j)
+            //mat[i][j] = m[i][j] - m[i][3] * center[j] - center[i] * m[j][3] + count * center[i] * center[j];
+            //mat[i][j] = m[i][j] - m[i][3] * m[j][3] / count - m[i][3] * m[j][3] / count + m[i][3] * m[j][3] / count;
+            mat.at<double>(i, j) = m[i][j] - m[i][3] * m[j][3] / count;
+
+    cv::Mat eigenvals;
+    cv::Mat eigenvects;
+    bool res = cv::eigen(mat, eigenvals, eigenvects);
+
+    std::array<double, 4> eq;
+    eq[0] = eigenvects.at<double>(2, 0);
+    eq[1] = eigenvects.at<double>(2, 1);
+    eq[2] = eigenvects.at<double>(2, 2);
+    eq[3] = - (eq[0] * m[0][3] + eq[1] * m[1][3] + eq[2] * m[2][3]) / count;
+
+    return eq;
+}
+
 // Calcule l'equation par minimisation des moindres carres.
 void Plane::computeEquation()
 {
+    /*
     // L'equation du plan est un vecteur du noyau de M
     std::array<double, 4> eq = Matrix<3, 4>::getKernel(m);
     double norm = sqrt(eq[0]*eq[0] + eq[1]*eq[1] + eq[2]*eq[2]);
@@ -96,6 +122,26 @@ void Plane::computeEquation()
     b = eq[1];
     c = eq[2];
     d = eq[3];
+    std::cout << "kernel : " << *this << std::endl;
+    //*/
+
+    std::array<double, 4> eq = leastSquares();
+    a = eq[0];
+    b = eq[1];
+    c = eq[2];
+    d = eq[3];
+    //std::cout << "eigen : " << *this << std::endl;
+
+    /*
+    double norm = sqrt(eq[0]*eq[0] + eq[1]*eq[1] + eq[2]*eq[2]);
+    for (double& x : eq)
+        x /= norm;
+    a = eq[0];
+    b = eq[1];
+    c = eq[2];
+    d = eq[3];
+    std::cout << "norm : " << *this << std::endl;
+    //*/
 
     center = Vec3(m[0][3], m[1][3], m[2][3]) / count;
     // Var(X) = Moy(X^2) - Moy(X)^2
@@ -186,9 +232,11 @@ bool Plane::mergeableWith(const Plane& p, double dCos, double dL) const {
 
 // Inclut le plan p dans le plan objet, le plan p est vidé.
 void Plane::merge(Plane& p, UnionFind<SharedPoint, RGB>& colors) {
+    /*
     std::cout << "Merge :" << std::endl;
     std::cout << *this << std::endl;
     std::cout << p << std::endl;
+    //*/
 
     count += p.count;
     for (unsigned int i = 0 ; i < 3 ; ++i)
@@ -198,7 +246,7 @@ void Plane::merge(Plane& p, UnionFind<SharedPoint, RGB>& colors) {
     colors.merge(point, p.point);
     this->computeEquation();
 
-    std::cout << *this << std::endl;
+    //std::cout << *this << std::endl;
 
     p = Plane();
 }

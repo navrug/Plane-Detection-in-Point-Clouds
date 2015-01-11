@@ -32,6 +32,7 @@ void printArray(const std::array<double, N>& a)
 int main()
 {
     Test::testSymmetricPoints();
+    //return 0;
 
     PointCloud cloud;
     /*
@@ -61,10 +62,9 @@ int main()
     //*/
     std::vector<SharedPlane> planes;
 
-    //                  (depthThreshold, epsilon, numStartPoints, numPoints, generateur, planes, colors, dCos, dL, pts)
-
     auto begin = std::chrono::steady_clock::now();
 
+    // (depthThreshold, epsilon, numStartPoints, numPoints, generateur, planes, colors, dCos, dL, pts)
     octree.detectPlanes(100, 0.1, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 1);
 
     auto end = std::chrono::steady_clock::now();
