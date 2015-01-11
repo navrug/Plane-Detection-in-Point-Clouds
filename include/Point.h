@@ -4,6 +4,7 @@
 #include "Vec3.h"
 #include "RGB.h"
 #include <memory>
+#include <math.h>
 
 class Point : public Vec3
 {
@@ -15,6 +16,9 @@ public:
 
     inline bool equals(const std::shared_ptr<Point>& p)
         {return x == p->x && y == p->y && z == p->z;}
+    inline double distanceFrom(Vec3 v) {
+        return sqrt((v.x - x)*(v.x -x) + (v.y - y)*(v.y - y) + (v.z - z)*(v.z - z));
+    }
 
     bool inPlane;
 };
