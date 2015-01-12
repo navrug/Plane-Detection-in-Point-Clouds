@@ -214,6 +214,10 @@ void Plane::computeEquation()
         thickness = 0;
     else
         thickness = std::sqrt(meansq - mean * mean);
+
+    // Useful for perfectly aligned points where thickness = 0;
+    if (thickness < radius / 1000)
+        thickness = radius / 1000;
 }
 
 // Distance betwen u and v along the normal.

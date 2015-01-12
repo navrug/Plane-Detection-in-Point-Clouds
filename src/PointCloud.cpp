@@ -66,7 +66,7 @@ void PointCloud::load3D(const std::string& filename)
 }
 
 // Save to file.
-bool PointCloud::toPly(const std::string& filename, bool showPlanes)
+bool PointCloud::toPly(const std::string& filename, bool showPlanes) const
 {
     std::ofstream out(filename.c_str());
     if (!out.is_open()) {

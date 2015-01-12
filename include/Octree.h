@@ -26,6 +26,9 @@ private:
         // Detect planes in this subtree.
         void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, double countRatio, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFindPlanes& colors, double dCos, std::vector<SharedPoint>& pts) const;
 
+        // Remove planes that have too few points, according to countRatio.
+        static void removeSmallPlanes(std::vector<SharedPlane>& planes, double countRatio, UnionFind<SharedPoint, std::pair<RGB, bool>>& colors);
+
     private:
         // Collect all the points in this subtree.
         void getPoints(std::vector<SharedPoint>& pts) const;

@@ -4,39 +4,11 @@
 
 #include <chrono>
 
-PointCloud getCloud(std::default_random_engine& random)
+void runTest(PointCloud& cloud, const std::string& name, std::default_random_engine& random)
 {
-    PointCloud cloud;
-    //*
-    std::string file = "Cloud.xyz";
-    cloud.loadPly(file);
-    //*/
-    /*
-    std::string file = "../data/test.3d";
-    cloud.load3D(file);
-    //*/
-    //cloud = Test::createTwoPlanes(random);
-    //cloud = Test::createParallelPlanes(100, 20, random);
-    /*
-    cloud = Test::createCube(20, random);
-    cloud.merge(Test::createCube(50, random));
-    //*/
-    //cloud = Test::createRandomPlanes(50, 10, random);
-    /*
-    std::string file = "scan148.3d";
-    cloud.load3D(file);
-    //*/
-
-    return cloud;
-}
-
-int main()
-{
-    std::default_random_engine random;
-
-    PointCloud cloud = getCloud(random);
-    std::cout << "Cloud loaded !" << std::endl;
-
+    std::cout << "****************************************" << std::endl;
+    std::cout << "Testing : " << name << std::endl;
+    std::cout << "****************************************" << std::endl;
     Octree octree(cloud, 30);
     std::cout << "Octree loaded !" << std::endl;
 
@@ -48,16 +20,47 @@ int main()
 
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_secs = end - begin;
-    std::cout << "Running time: " << elapsed_secs.count() << " seconds." << std::endl;
 
     std::cout << std::endl << planes.size() << " planes :" << std::endl;
     std::sort(planes.begin(), planes.end(), [](const SharedPlane& a, const SharedPlane& b){return a->getCount() < b->getCount();});
     for (auto&& p : planes)
         std::cout << *p << std::endl;
 
+    std::cout << std::endl << "Running time: " << elapsed_secs.count() << " seconds." << std::endl;
+
     std::cout << "Saving..." << std::endl;
-    cloud.toPly("detect.ply", true);
-    //cloud.toPly("inplane.ply", false);
+    cloud.toPly(name + ".ply", true);
+    std::cout << "****************************************" << std::endl;
+    std::cout << "End of test : " << name << std::endl;
+    std::cout << "****************************************" << std::endl;
+}
+
+int main()
+{
+    std::default_random_engine random;
+
+    {
+    PointCloud cloud = Test::createTwoPlanes(random);
+    runTest(cloud, "detect_parallel_planes", random);
+    }
+
+    {
+    PointCloud cloud = Test::createCube(20, random);
+    cloud.merge(Test::createCube(50, random));
+    cloud.merge(Test::createCube(80, random));
+    runTest(cloud, "detect_3cubes", random);
+    }
+
+    {
+    PointCloud cloud = Test::createRandomPlanes(50, 10, random);
+    runTest(cloud, "detect_random_planes", random);
+    }
+
+    {
+    PointCloud cloud;
+    cloud.loadPly("Cloud.xyz");
+    runTest(cloud, "detect_buildings", random);
+    }
 
     return 0;
 }
