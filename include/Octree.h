@@ -4,60 +4,57 @@
 #include <vector>
 #include <random>
 #include "PointCloud.h"
-#include "PlaneSet.h"
 
+// Octree structure.
 class Octree {
-
-    static unsigned int maxdepth;
-
 public:
-    Octree(const Vec3& origin, const Vec3& halfDimension);
-    Octree(const PointCloud& cloud);
+    // Build a tree from a point cloud.
+    Octree(const PointCloud& cloud, unsigned int maxdepth);
 
-    // Determine which octant of the tree would contain 'point'
-    int findOctant(SharedPoint p) const;
-
-    bool isLeafNode() const;
-
-    void insert(SharedPoint p, unsigned int depth);
-
-    void getPoints(std::vector<SharedPoint>& pts) const;
-
-    void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL, std::vector<SharedPoint>& pts) const;
-
-    inline void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generateur, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, RGB>& colors, double dCos, double dL) const
-    {
-        std::vector<SharedPoint> pts;
-        this->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, planes, colors, dCos, dL, pts);
-    }
-
-
-    // This is a really simple routine for querying the tree for points
-    // within a bounding box defined by min/max points (bmin, bmax)
-    // All results are pushed into 'results'
-    void getPointsInsideBox(const Vec3& bmin, const Vec3& bmax, std::vector<SharedPoint>& results);
+    // Detect planes in the point cloud.
+    void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFindPlanes& colors, double dCos) const;
 
 private:
-    // Physical position/size. This implicitly defines the bounding
-    // box of this node
-    Vec3 origin;         //! The physical center of this node
-    Vec3 halfDimension;  //! Half the width/height/depth of this node
+    // Node of the tree structure.
+    class Node {
+    public:
+        // Create a node.
+        Node(const Vec3d& origin, const Vec3d& halfDimension);
 
-    // The tree has up to eight children and can additionally store
-    // a point, though in many applications only, the leaves will store data.
-    std::shared_ptr<Octree> children[8]; //! Pointers to child octants
-    SharedPoint point;   //! Data point to be stored at a node
-    unsigned int count; // number of points inside
+        // Insert a point with max recursion depth. Return false if max depth reached, true otherwise.
+        bool insert(SharedPoint p, unsigned int maxdepth);
+        // Detect planes in this subtree.
+        void detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFindPlanes& colors, double dCos, std::vector<SharedPoint>& pts) const;
 
-    /*
-            Children follow a predictable pattern to make accesses simple.
-            Here, - means less than 'origin' in that dimension, + means greater than.
-            child:	0 1 2 3 4 5 6 7
-            x:      - - - - + + + +
-            y:      - - + + - - + +
-            z:      - + - + - + - +
-     */
+    private:
+        // Collect all the points in this subtree.
+        void getPoints(std::vector<SharedPoint>& pts) const;
+        // Whether this is a leaf.
+        bool isLeafNode() const;
+        // Determine which octant of the tree contains p.
+        int findOctant(SharedPoint p) const;
 
+        // Physical position/size.
+        Vec3d center;
+        Vec3d halfSize;
+
+        /*
+         *  Children follow a predictable pattern to make accesses simple.
+         *  Here, - means less than 'center' in that dimension, + means greater than.
+         *  child:	0 1 2 3 4 5 6 7
+         *  x:      - - - - + + + +
+         *  y:      - - + + - - + +
+         *  z:      - + - + - + - +
+        */
+        std::shared_ptr<Node> children[8];
+        // Point for leaves only.
+        SharedPoint point;
+        // Number of points inside this Node.
+        unsigned int count;
+    };
+
+    // Root of the tree.
+    Node mRoot;
 };
 
 #endif

@@ -1,43 +1,13 @@
 #include "PointCloud.h"
-#include "Ransac.h"
 #include "Octree.h"
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <random>
-#include <algorithm>
-#include <chrono>
-
-#include "Matrix.h"
-#include "PlaneSet.h"
 #include "Test.h"
 
-/*
-template<size_t N>
-void printArray(const std::array<double, N>& a)
+#include <chrono>
+
+PointCloud getCloud(std::default_random_engine& random)
 {
-    std::cout << "(";
-    for (unsigned int i = 0 ; i < N ; ++i)
-    {
-        if (i)
-            std::cout << ", ";
-        std::cout << a[i];
-    }
-    std::cout << ")" << std::endl;
-}
-//*/
-
-int main()
-{
-    //Test::testSymmetricPoints();
-    //return 0;
-
-    std::default_random_engine random;
-
     PointCloud cloud;
-    /*
+    //*
     std::string file = "Cloud.xyz";
     cloud.loadPly(file);
     //*/
@@ -45,34 +15,36 @@ int main()
     std::string file = "../data/test.3d";
     cloud.load3D(file);
     //*/
-    //cloud = Test::createTwoPlanes();
-    //cloud = Test::createParallelPlanes(50, 20);
+    //cloud = Test::createTwoPlanes(random);
+    //cloud = Test::createParallelPlanes(100, 20, random);
     /*
-    cloud = Test::createCube(20);
-    cloud.merge(Test::createCube(50));
+    cloud = Test::createCube(20, random);
+    cloud.merge(Test::createCube(50, random));
     //*/
-    cloud = Test::createRandomPlanes(50, 10, random);
+    //cloud = Test::createRandomPlanes(50, 10, random);
     /*
     std::string file = "scan148.3d";
     cloud.load3D(file);
     //*/
+
+    return cloud;
+}
+
+int main()
+{
+    std::default_random_engine random;
+
+    PointCloud cloud = getCloud(random);
     std::cout << "Cloud loaded !" << std::endl;
 
-    Octree octree(cloud);
+    Octree octree(cloud, 30);
     std::cout << "Octree loaded !" << std::endl;
 
-    //random.seed(333);
-    /*
-    Plane plane = ransac(cloud.getPoints(), 1, 3, 10, 100, random);
-    std::cout << "Plan : " << plane << std::endl;
-    plane.setColor(RGB(255, 0, 0));
-    //*/
     std::vector<SharedPlane> planes;
-
     auto begin = std::chrono::steady_clock::now();
 
-    // (depthThreshold, epsilon, numStartPoints, numPoints, generateur, planes, colors, dCos, dL, pts)
-    octree.detectPlanes(100, 0.1, 10, 30, 10, random, planes, cloud.getColors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5), 1);
+    // (depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, planes, colors, dCos)
+    octree.detectPlanes(100, 0.1, 10, 30, 10, random, planes, cloud.colors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5));
 
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_secs = end - begin;
@@ -85,7 +57,7 @@ int main()
 
     std::cout << "Saving..." << std::endl;
     cloud.toPly("detect.ply", true);
-    cloud.toPly("inplane.ply", false);
+    //cloud.toPly("inplane.ply", false);
 
     return 0;
 }

@@ -2,25 +2,21 @@
 #define POINT_H
 
 #include "Vec3.h"
-#include "RGB.h"
 #include <memory>
-#include <math.h>
 
-class Point : public Vec3
+// A point is in a plane or not.
+class Point : public Vec3d
 {
 public:
     inline Point(double x, double y, double z) :
-        Vec3(x, y, z), inPlane(false) {}
+        Vec3d(x, y, z) {}
     inline Point(const Vec3& position) :
-        Vec3(position), inPlane(false) {}
-
+        Vec3d(position) {}
+/*
     inline bool equals(const std::shared_ptr<Point>& p)
         {return x == p->x && y == p->y && z == p->z;}
-    inline double distanceFrom(Vec3 v) {
-        return sqrt((v.x - x)*(v.x -x) + (v.y - y)*(v.y - y) + (v.z - z)*(v.z - z));
-    }
-
-    bool inPlane;
+//*/
+    //bool inPlane;
 };
 
 typedef std::shared_ptr<Point> SharedPoint;

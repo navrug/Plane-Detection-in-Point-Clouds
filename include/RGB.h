@@ -1,11 +1,14 @@
 #ifndef RGB_H
 #define RGB_H
 
+// Red-Green-Blue color.
 class RGB
 {
 public:
-    RGB();
-    RGB(unsigned char r, unsigned char g, unsigned char b);
+    inline RGB() :
+        r(0), g(0), b(0) {}
+    inline RGB(unsigned char red, unsigned char green, unsigned char blue) :
+        r(red), g(green), b(blue) {}
 
     unsigned char r;
     unsigned char g;

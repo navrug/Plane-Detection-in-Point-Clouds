@@ -2,80 +2,78 @@
 #define PLANE_H
 
 #include "Point.h"
-#include <vector>
-#include <iostream>
 #include "RGB.h"
 #include "UnionFind.h"
+#include <vector>
+#include <iostream>
+#include <opencv2/core/core.hpp>
 
 class Plane
 {
+    // Print the plane.
+    friend std::ostream& operator<<(std::ostream& os, const Plane& p);
+
 public:
-    //Plane(double a_, double b_, double c_, double d_) : a(a_), b(b_), c(c_), d(d_) {}
+    // Invalid plane.
     Plane();
-    // Plan passant par n points par minimisation des moindres carres
+    // Plane that best fit the points with least squares minimization.
     Plane(const std::vector<SharedPoint>& pts);
 
-    // Carre de la distance entre le point et le plan
+    // Distance between point and plane.
     double distance(SharedPoint p);
-
-    // Verifie si un point est acceptable dans le plan
+    // Square of distance between point and plane.
+    double squareDistance(SharedPoint p);
+    // Wether the point is next to the plane.
     bool accept(SharedPoint p);
 
-    // Si le plan est bien defini (vecteur normal non nul)
-    bool isValid() {return a != 0 || b != 0 || c != 0;}
+    // Fit the plane to the points.
+    void setPoints(const std::vector<SharedPoint>& pts);
+    // Change the color of the plane.
+    void setColor(RGB color, UnionFindPlanes& colors);
+    // Reset all points to their initial color.
+    void destroy(UnionFindPlanes& colors);
 
     // Ajoute un point au plan (sans recalculer l'equation)
-    void addPoint(SharedPoint p, UnionFind<SharedPoint, RGB>& colors);
-
-    // Calcule l'equation par minimisation des moindres carres.
+    void addPoint(SharedPoint p, UnionFindPlanes& colors);
+    // Compute equation and attributes of the plane (radius, thickness)
     void computeEquation();
 
-    // Lie un plan à ses points, calcule au passage le barycentre et le rayon du nuage de points
-    void setPoints(const std::vector<SharedPoint>& pts);
-
-    // Change la couleur des points du plan
-    void setColor(RGB color, UnionFind<SharedPoint, RGB>& colors);
-
-    // Decide si deux plans peuvent être fusionnes
-    // dTheta est donne en radians.
-    bool mergeableWith(const Plane& p, double dCos, double dL) const;
-
-    // Inclut le plan p dans le plan objet, le plan p est vide.
-    void merge(Plane& p, UnionFind<SharedPoint, RGB>& colors);
-
-    // Donne la distance entre deux points selon la normale au plan
-    double distanceAlong(Vec3 u, Vec3 v) const;
-
-    // Valeur absolue du cosinus entre les vecteurs normaux.
-    static double getCos(const Plane& p, const Plane& q);
+    // Decides whether p is mergeable with this.
+    bool mergeableWith(const Plane& p, double dCos) const;
+    // Merge plane p into this.
+    void merge(Plane& p, UnionFindPlanes& colors);
 
     inline unsigned int getCount()
         {return count;}
 
 private:
-    // Initialise la matrice M
+    // Initialize plane attributes.
     void init();
-    // Ajoute un point au plan (sans recalculer l'equation)
+    // Add a point to the plane (without recomputing equation).
     void addPoint(const Point& p);
+    // Best fit of the plane using least squares.
+    void leastSquares();
 
-    std::array<double, 4> leastSquares() const;
+    // Distance betwen u and v along the normal.
+    double distanceAlong(Vec3d u, Vec3d v) const;
+    // Angular difference between normals.
+    double getCos(const Plane& p) const;
 
-    //Coordinates corresponding to the plane equation ax+by+cz+d=0
-    double a, b, c, d;
+    // Plane equation : normal * X + d = 0
+    Vec3d normal;
+    double d;
+    // Matrix to compute quickly the optimal equation.
+    cv::Mat m;
+    Vec3d sum;
+    // Attributes for plane merging.
+    Vec3d center;
+    double radius;
+    double thickness;
 
-    // Matrix to compute the optimal equation given the points
-    std::array<std::array<double, 4>, 3> m;
     // One point related to the plane
     SharedPoint point;
     // Number of points
     unsigned int count;
-
-    //Attributes for plane merging
-    Vec3 center; // Currently the barycenter, but it would be better to have the circumcenter if we could find an efficient computation method
-    double radius;
-    double thickness;
-
-    friend std::ostream& operator<<(std::ostream& os, const Plane& p);
 };
 
 typedef std::shared_ptr<Plane> SharedPlane;

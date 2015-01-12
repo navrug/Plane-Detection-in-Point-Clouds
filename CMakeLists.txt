@@ -8,10 +8,8 @@ PROJECT(plane_detection)
 INCLUDE_DIRECTORIES(include)
 ADD_EXECUTABLE(
     plane_detection
-    include/Matrix.h
     include/Octree.h
     include/Plane.h
-    include/PlaneSet.h
     include/Point.h
     include/PointCloud.h
     include/Ransac.h
@@ -21,10 +19,8 @@ ADD_EXECUTABLE(
     include/Vec3.h
     src/Octree.cpp
     src/Plane.cpp
-    src/PlaneSet.cpp
     src/PointCloud.cpp
     src/Ransac.cpp
-    src/RGB.cpp
     src/Test.cpp
     src/main.cpp
 )

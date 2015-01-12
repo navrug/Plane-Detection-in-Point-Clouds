@@ -1,47 +1,22 @@
 #include "PointCloud.h"
-#include <string>
-#include <iostream>
+
 #include <fstream>
-#include <sstream>
-#include <limits>
 
-void PointCloud::merge(const PointCloud& other)
-{
-    center *= points.size();
-    for (SharedPoint p : other.points)
-        addPoint(p, other.colors.at(p));
-    finishLoad();
-}
-
-void PointCloud::addPoint(SharedPoint p, RGB color)
-{
-    center += *p;
-    max.max(*p);
-    min.min(*p);
-
-    points.push_back(p);
-    colors.append(p, color);
-}
-
-void PointCloud::finishLoad()
-{
-    center /= points.size();
-    halfDimension = (max - min) / 2;
-    std::cout << "Created a PointCloud of " << points.size() << " points." << std::endl;
-}
-
+// Empty cloud.
 PointCloud::PointCloud()
 {
-    min = Vec3(
+    min = Vec3d(
                 std::numeric_limits<double>::infinity(),
                 std::numeric_limits<double>::infinity(),
                 std::numeric_limits<double>::infinity());
-    max = Vec3(
+    max = Vec3d(
                 -std::numeric_limits<double>::infinity(),
                 -std::numeric_limits<double>::infinity(),
                 -std::numeric_limits<double>::infinity());
 }
 
+
+// Load from file.
 void PointCloud::loadPly(const std::string& filename)
 {
     std::ifstream infile(filename.c_str());
@@ -68,9 +43,10 @@ void PointCloud::loadPly(const std::string& filename)
         this->addPoint(std::make_shared<Point>(x, y, z), RGB(r, g, b));
     }
 
-    this->finishLoad();
+    this->boundingBox();
 }
 
+// Load from file.
 void PointCloud::load3D(const std::string& filename)
 {
     std::ifstream infile(filename.c_str());
@@ -86,9 +62,10 @@ void PointCloud::load3D(const std::string& filename)
         this->addPoint(std::make_shared<Point>(x, y, z), RGB(128, 128, 128));
     }
 
-    this->finishLoad();
+    this->boundingBox();
 }
 
+// Save to file.
 bool PointCloud::toPly(const std::string& filename, bool showPlanes)
 {
     std::ofstream out(filename.c_str());
@@ -99,7 +76,7 @@ bool PointCloud::toPly(const std::string& filename, bool showPlanes)
 
     out << "ply" << std::endl
         << "format ascii 1.0" << std::endl
-        << "element vertex " << points.size() << std::endl
+        << "element vertex " << mPoints.size() << std::endl
         << "property float x" << std::endl
         << "property float y" << std::endl
         << "property float z" << std::endl
@@ -108,16 +85,47 @@ bool PointCloud::toPly(const std::string& filename, bool showPlanes)
         << "property uchar blue" << std::endl
         << "end_header" << std::endl;
 
-    for (SharedPoint p : points) {
+    for (SharedPoint p : mPoints) {
+        std::pair<RGB, bool> state = mColors.at(p);
         RGB rgb;
         if (showPlanes)
-            rgb = colors.at(p);
+            rgb = state.first;
         else
-            rgb = p->inPlane ? RGB(255, 255, 255) : RGB(0, 0, 0);
+            rgb = state.second ? RGB(255, 255, 255) : RGB(0, 0, 0);
         out << p->x << " " << p->y << " " << p->z << " " << int(rgb.r) << " " << int(rgb.g) << " " << int(rgb.b) << " " << std::endl;
     }
 
     out.close();
     std::cout << "Ply " << filename << " exported." << std::endl;
     return true;
+}
+
+
+// Merge two point clouds.
+void PointCloud::merge(const PointCloud& other)
+{
+    mCenter *= mPoints.size();
+    for (SharedPoint p : other.mPoints)
+        addPoint(p, other.mColors.at(p).first);
+    this->boundingBox();
+}
+
+
+// Add point.
+void PointCloud::addPoint(SharedPoint p, RGB color)
+{
+    mCenter += *p;
+    max.max(*p);
+    min.min(*p);
+
+    mPoints.push_back(p);
+    mColors.append(p, std::make_pair(color, false));
+}
+
+// Compute bounding box.
+void PointCloud::boundingBox()
+{
+    mCenter /= mPoints.size();
+    mHalfDimension = (max - min) / 2;
+    std::cout << "Created a PointCloud of " << mPoints.size() << " points." << std::endl;
 }
