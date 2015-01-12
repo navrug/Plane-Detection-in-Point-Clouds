@@ -23,7 +23,7 @@ public:
     double distance(SharedPoint p);
     // Square of distance between point and plane.
     double squareDistance(SharedPoint p);
-    // Wether the point is next to the plane.
+    // Whether the point is close to the plane.
     bool accept(SharedPoint p);
 
     // Fit the plane to the points.

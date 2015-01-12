@@ -43,8 +43,8 @@ int main()
     std::vector<SharedPlane> planes;
     auto begin = std::chrono::steady_clock::now();
 
-    // (depthThreshold, epsilon, numStartPoints, numPoints, steps, generateur, planes, colors, dCos)
-    octree.detectPlanes(100, 0.1, 10, 30, 10, random, planes, cloud.colors(), std::cos(3.1415/180 * /*Angle in degrees: */ 5));
+    // (depthThreshold, epsilon, numStartPoints, numPoints, steps, countRatio, generateur, planes, colors, dCos)
+    octree.detectPlanes(100, 0.05, 10, 30, 10, 0.005, random, planes, cloud.colors(), std::cos(3.1415/180 * /*Angle in degrees: */ 15));
 
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_secs = end - begin;

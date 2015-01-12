@@ -29,7 +29,7 @@ Plane::Plane(const std::vector<SharedPoint>& pts) :
 // Distance between point and plane.
 double Plane::distance(SharedPoint p)
 {
-    return (normal * *p) + d;
+    return std::abs((normal * *p) + d);
 }
 
 // Square of distance between point and plane.
@@ -39,10 +39,10 @@ double Plane::squareDistance(SharedPoint p)
     return diff * diff;
 }
 
-// Wether the point is next to the plane.
+// Whether the point is close to the plane.
 bool Plane::accept(SharedPoint p)
 {
-    return (p->distance(center) <= 5 * radius) && (this->distance(p) <= 3 * thickness);
+    return (center.distance(*p) < 3 * radius) && (this->distance(p) < 2 * thickness);
 }
 
 
@@ -111,7 +111,6 @@ bool Plane::mergeableWith(const Plane& p, double dCos) const {
     if (this->distanceAlong(center, p.center) > thickness && p.distanceAlong(center, p.center) > p.thickness)
         return false;
 
-    //*
     // Angular difference with new plane.
     Plane tempPlane;
     tempPlane.m = m + p.m;
@@ -125,7 +124,6 @@ bool Plane::mergeableWith(const Plane& p, double dCos) const {
         return false;
     if (tempPlane.thickness > thickness + p.thickness)
         return false;
-    //*/
 
     /*
     std::cout << *this << std::endl;

@@ -28,7 +28,7 @@ SharedPlane Ransac::ransac(std::vector<SharedPoint>& points, double epsilon, int
     double radius = std::sqrt(stddev.x + stddev.y + stddev.z);
 
     // Thickness threshold is proportional to this radius.
-    epsilon *= radius / points.size();
+    epsilon *= radius;
 
 
     // Points in the resulting plane.
