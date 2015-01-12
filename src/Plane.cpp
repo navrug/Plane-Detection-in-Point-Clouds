@@ -6,7 +6,7 @@
 // Print the plane.
 std::ostream& operator<<(std::ostream& os, const Plane& p)
 {
-    return os << "{" << p.normal[0] << "x + " << p.normal[1] << "y + " << p.normal[2] << "z + " << p.d << " : " << p.count << " points, radius = " << p.radius << ", thickness = " << p.thickness << "}";
+    return os << "{" << p.normal[0] << "x + " << p.normal[1] << "y + " << p.normal[2] << "z + " << p.d << " : " << p.count << " points, center = (" << p.center[0] << ", " << p.center[1] << ", " << p.center[2] << "), radius = " << p.radius << ", thickness = " << p.thickness << "}";
 }
 
 

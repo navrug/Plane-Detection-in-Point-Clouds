@@ -3,6 +3,7 @@
 #include "Test.h"
 
 #include <chrono>
+#include <fstream>
 
 void runTest(PointCloud& cloud, const std::string& name, std::default_random_engine& random)
 {
@@ -23,8 +24,14 @@ void runTest(PointCloud& cloud, const std::string& name, std::default_random_eng
 
     std::cout << std::endl << planes.size() << " planes :" << std::endl;
     std::sort(planes.begin(), planes.end(), [](const SharedPlane& a, const SharedPlane& b){return a->getCount() < b->getCount();});
-    for (auto&& p : planes)
-        std::cout << *p << std::endl;
+
+    std::ofstream out((name + ".planes").c_str());
+    for (unsigned int i = 0 ; i < planes.size() ; ++i)
+    {
+        std::cout << *planes[i] << std::endl;
+        out << *planes[planes.size() - i - 1] << std::endl;
+    }
+    out.close();
 
     std::cout << std::endl << "Running time: " << elapsed_secs.count() << " seconds." << std::endl;
 
