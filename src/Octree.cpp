@@ -13,10 +13,10 @@ Octree::Octree(const PointCloud& cloud, unsigned int maxdepth) :
 
 
 // Detect planes in the point cloud.
-void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFindPlanes& colors, double dCos) const
+void Octree::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, double countRatio, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFindPlanes& colors, double dCos) const
 {
     std::vector<SharedPoint> pts;
-    mRoot.detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generator, planes, colors, dCos, pts);
+    mRoot.detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, countRatio, generator, planes, colors, dCos, pts);
 }
 
 
@@ -39,7 +39,32 @@ void Octree::Node::getPoints(std::vector<SharedPoint>& pts) const
             child->getPoints(pts);
 }
 
-void Octree::Node::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, std::pair<RGB, bool>>& colors, double dCos, std::vector<SharedPoint>& pts) const
+// Remove planes that have too few points, according to countRatio.
+void Octree::Node::removeSmallPlanes(std::vector<SharedPlane>& planes, double countRatio, UnionFind<SharedPoint, std::pair<RGB, bool>>& colors)
+{
+    // Remove planes that are too small.
+    if (!planes.empty())
+    {
+        static auto comp = [](const SharedPlane& a, const SharedPlane& b){return a && b ? a->getCount() > b->getCount() : (bool)a;};
+        std::sort(planes.begin(), planes.end(), comp);
+
+        if (planes[0])
+        {
+            double minCount = planes[0]->getCount() * countRatio;
+            for (SharedPlane& p : planes)
+            {
+                if (p && p->getCount() <= minCount)
+                {
+                    p->destroy(colors);
+                    p.reset();
+                }
+            }
+        }
+    }
+}
+
+// Detect planes in this subtree.
+void Octree::Node::detectPlanes(int depthThreshold, double epsilon, int numStartPoints, int numPoints, int steps, double countRatio, std::default_random_engine& generator, std::vector<SharedPlane>& planes, UnionFind<SharedPoint, std::pair<RGB, bool>>& colors, double dCos, std::vector<SharedPoint>& pts) const
 {
     // Node => recursion.
     if (count > depthThreshold)
@@ -51,31 +76,20 @@ void Octree::Node::detectPlanes(int depthThreshold, double epsilon, int numStart
             std::vector<SharedPoint> child_pts;
             if (child.get() != nullptr)
             {
-                child->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, generator, plns, colors, dCos, child_pts);
+                child->detectPlanes(depthThreshold, epsilon, numStartPoints, numPoints, steps, countRatio, generator, plns, colors, dCos, child_pts);
                 for (auto&& p : child_pts)
                     pts.push_back(p);
             }
         }
 
         /*
-        // Remove planes that are too small.
-        if (!plns.empty())
-        {
-            static auto comp = [](const SharedPlane& a, const SharedPlane& b){return a->getCount() > b->getCount();};
-            std::sort(plns.begin(), plns.end(), comp);
-
-            unsigned int minCount = plns[0]->getCount() / 200;
-            //std::cout << "max count = " << plns[0]->getCount() << std::endl;
-            for (SharedPlane& p : plns)
-            {
-                if (p->getCount() <= minCount)
-                {
-                    p->destroy(colors);
-                    p.reset();
-                }
-            }
-        }
+        // To test leaf planes.
+        for (auto&& plane : plns)
+            planes.push_back(plane);
+        return;
         //*/
+
+        removeSmallPlanes(plns, countRatio, colors);
 
         // Try to merge planes.
         for (unsigned int i = 0 ; i < plns.size() ; ++i)
@@ -89,6 +103,8 @@ void Octree::Node::detectPlanes(int depthThreshold, double epsilon, int numStart
                 }
             }
         }
+
+        removeSmallPlanes(plns, countRatio, colors);
 
         // Try to match free points to planes.
         for (auto&& p : pts)
@@ -126,10 +142,11 @@ void Octree::Node::detectPlanes(int depthThreshold, double epsilon, int numStart
         // Collect points.
         this->getPoints(pts);
 
-        // Find a plane.
-        for (int i = 0 ; i < 1 ; ++i)
+        // Find planes.
+        std::vector<SharedPoint> remaining_pts = pts;
+        for (int i = 0 ; i < 2 ; ++i)
         {
-            SharedPlane plane = Ransac::ransac(pts, epsilon, numStartPoints, numPoints, steps, generator, colors);
+            SharedPlane plane = Ransac::ransac(remaining_pts, epsilon, numStartPoints, numPoints, steps, generator, colors);
             if (!plane)
                 return;
 
@@ -167,7 +184,7 @@ bool Octree::Node::insert(SharedPoint p, unsigned int depth)
 
     if (depth == 0)
     {
-        std::cerr << "Max depth reached. Point not added : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
+        //std::cerr << "Max depth reached. Point not added : [" << p->x << ", " << p->y << ", " << p->z << "]" << std::endl;
         return result;
     }
     --depth;

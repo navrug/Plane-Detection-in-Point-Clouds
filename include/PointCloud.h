@@ -19,7 +19,7 @@ public:
     void loadPly(const std::string& filename);
     void load3D(const std::string& filename);
     // Save to file.
-    bool toPly(const std::string& filename, bool showPlanes);
+    bool toPly(const std::string& filename, bool showPlanes) const;
 
     // Merge two point clouds.
     void merge(const PointCloud& other);
